@@ -1,0 +1,7 @@
+https://int10h.org/oldschool-pc-fonts/fontlist/font?acer710_mono#-
+https://www.asciitable.it/
+https://en.wikipedia.org/wiki/X86_instruction_listings
+https://wiki.osdev.org/VGA_Hardware#Memory_Layout_in_16-color_graphics_modes
+https://mendelson.org/wpdos/videomodes.txt
+http://www.osdever.net/FreeVGA/vga/attrreg.htm
+https://www.win.tue.nl/~aeb/linux/kbd/scancodes-1.html
