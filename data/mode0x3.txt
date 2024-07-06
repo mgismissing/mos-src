@@ -1,0 +1,5 @@
+FG: Like colors 0x00 - 0x0F of mode 0x13
+BG: Colors 0x00 - 0x07 of mode 0x13, Then the same colors repeated
+
+BG INFO:
+COLORS 0x08 - 0x0F MAKE FG COLORS BLINK
