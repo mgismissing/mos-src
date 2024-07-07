@@ -55,7 +55,7 @@ mov dl, 0x0C
 mov bx, boot_loading_err1
 call boot_scr_print_string
 
-call delay_200ms
+call delay_1s
 
 mov ax, 0x0000
 mov bx, SCR_SIZE
@@ -135,9 +135,13 @@ db 0x55, 0xAA
 ;###############################################################################################################################
 
 extended_space_start:
+    call mos_show_logo
+    call delay_2s
+
+    call scr_init
     call scr_vga_disable_blinking
+    call scr_cursor_disable
     mov byte [var_currentSelection], 0x00
-    mov byte [var_sel00_currentSelection], 0x00
 
     mov bx, SCR_WIDTH                           ; MENU BAR
     mov dl, 0xE0
@@ -189,21 +193,46 @@ extended_space_loop_main:
     mov bx, str__guiMenuDebug_s
     call scr_print_string
 
-    .update_selection_01:                       ; guiClose
+    .update_selection_01:                       ; guiMenuTestBIOS
+    mov ax, 0x000E
+    mov dl, 0xE0
+    mov bx, str__guiMenuTestBIOS
+    call scr_print_string
+
+    cmp byte [var_currentSelection], 0x01
+    jne .update_selection_02
+    mov ax, 0x000E
+    mov dl, 0x60
+    mov bx, str__guiMenuTestBIOS_s
+    call scr_print_string
+
+    .update_selection_02:                       ; guiMenuTestBIOS
+    mov ax, 0x0024
+    mov dl, 0xE0
+    mov bx, str__guiMenuPlayTestGame
+    call scr_print_string
+
+    cmp byte [var_currentSelection], 0x02
+    jne .update_selection_03
+    mov ax, 0x0024
+    mov dl, 0x60
+    mov bx, str__guiMenuPlayTestGame_s
+    call scr_print_string
+    
+    .update_selection_03:                       ; guiClose
     mov ax, SCR_WIDTH - 6
     mov dl, 0xCF
     mov bx, str__guiClose
     call scr_print_string
 
-    cmp byte [var_currentSelection], 0x01
-    jne .update_selection_02
+    cmp byte [var_currentSelection], 0x03
+    jne .update_selection_end
     mov ax, SCR_WIDTH - 6
     mov dl, 0x4F
     mov bx, str__guiClose_s
     call scr_print_string
 
-    .update_selection_02:
-    ; placeholder
+    .update_selection_end:
 
     mov ax, 0
     call kb_waitForKey
@@ -240,22 +269,32 @@ execute_current_selection:
     je execute_selection_00
     cmp byte [var_currentSelection], 0x01
     je execute_selection_01
+    cmp byte [var_currentSelection], 0x02
+    je execute_selection_02
+    cmp byte [var_currentSelection], 0x03
+    je execute_selection_03
     jmp extended_space_loop_main
 
 execute_selection_00:
+    jmp extended_space_loop_main
+
+execute_selection_01:
     mov word [error_t], error_0x0002_t
     mov word [error_d], error_0x0002_d
     call start_extended_bsod
     jmp $
 
-execute_selection_01:
+execute_selection_02:
+    jmp extended_space_loop_main
+
+execute_selection_03:
     jmp system_shutdown
 
 extended_space_end:
     jmp $
 
 system_shutdown:
-    ;call power_shutdown
+    call power_shutdown
     
     call scr13_init
 
@@ -299,7 +338,7 @@ system_shutdown:
     mov bx, 0x63
     call scr13_print_char_partof_str
     
-    mov ax, SCR13_HEIGHT_MIDDLE - (SCR13_WIDTH * 4) + SCR13_WIDTH_MIDDLE - (20 * 4)
+    mov ax, SCR13_HEIGHT_MIDDLE - (SCR13_WIDTH * 4) + SCR13_WIDTH_MIDDLE - (40 * 2)
     mov dl, 0x0E
     mov bx, 'I'
     call scr13_print_char_partof_str
@@ -374,11 +413,65 @@ system_shutdown:
     call scr13_print_char_partof_str
     jmp $
 
+mos_show_logo:
+    call scr13_init
+    mov ax, 0x0000
+    mov bx, SCR13_SIZE
+    mov dl, 0x12
+    call scr13_draw_line
+
+    mov ax, SCR13_HEIGHT_MIDDLE - (SCR13_WIDTH * 16) + SCR13_WIDTH_MIDDLE - (11 * 8)
+    mov dl, 0x1E
+    mov bx, 'M'
+    call scr13_print_char_partof_str_x4
+    mov bx, 'A'
+    call scr13_print_char_partof_str_x4
+    mov bx, 'G'
+    call scr13_print_char_partof_str_x4
+    mov bx, 'N'
+    call scr13_print_char_partof_str_x4
+    mov bx, 'E'
+    call scr13_print_char_partof_str_x4
+    mov bx, 'S'
+    call scr13_print_char_partof_str_x4
+    mov bx, 'I'
+    call scr13_print_char_partof_str_x4
+    mov bx, 'U'
+    call scr13_print_char_partof_str_x4
+    mov bx, 'M'
+    call scr13_print_char_partof_str_x4
+    mov dl, 0x19
+    mov bx, 'O'
+    call scr13_print_char_partof_str_x4
+    mov bx, 'S'
+    call scr13_print_char_partof_str_x4
+
+    mov ax, SCR13_WIDTH * 191 + 1
+    mov dl, 0x15
+    mov bx, 'L'
+    call scr13_print_char_partof_str
+    mov bx, 'O'
+    call scr13_print_char_partof_str
+    mov bx, 'A'
+    call scr13_print_char_partof_str
+    mov bx, 'D'
+    call scr13_print_char_partof_str
+    mov bx, 'I'
+    call scr13_print_char_partof_str
+    mov bx, 'N'
+    call scr13_print_char_partof_str
+    mov bx, 'G'
+    call scr13_print_char_partof_str
+    mov bx, '.'
+    call scr13_print_char_partof_str
+    call scr13_print_char_partof_str
+    call scr13_print_char_partof_str
+
+    ret
+
 var_start:
 var_currentSelection: db 0x00
-var_biggestSelection: db 0x01
-var_sel00_currentSelection: db 0x00
-var_sel00_biggestSelection: db 0x01
+var_biggestSelection: db 0x03
 
 str_start:
 str__osNameExtended:
@@ -393,6 +486,14 @@ str__guiMenuDebug:
     db ' Debug ', 0
 str__guiMenuDebug_s:
     db '[Debug]', 0
+str__guiMenuTestBIOS:
+    db ' Test BIOS ', 0
+str__guiMenuTestBIOS_s:
+    db '[Test BIOS]', 0
+str__guiMenuPlayTestGame:
+    db ' Play test game ', 0
+str__guiMenuPlayTestGame_s:
+    db '[Play test game]', 0
 str__guiMenuDebug__invokeBSOD:
     db ' Invoke BSOD ', 0
 str__guiMenuDebug__invokeBSOD_s:
@@ -412,6 +513,8 @@ error_asm:
 %include "lib16/error.asm"
 kb_asm:
 %include "lib16/kb.asm"
+audio_asm:
+%include "lib16/audio.asm"
 
 test: db 0xFF
 
@@ -426,5 +529,10 @@ error_help5: db "If problems continue, disable BIOS memory options such as cachi
 error_start:
 error_0x0002_t: db "Error 0x0002:", 0
 error_0x0002_d: db "The user manually invoked this error message.", 0
+
+
+test_game_init:
+call scr13_init
+
 
 times 512 * 32 - ($-$$) db 0

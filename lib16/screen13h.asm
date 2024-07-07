@@ -6,13 +6,70 @@ scr13_init:                                       ; scr13_init() => None
     mov ax, 0x0000
     ret
 
+scr13_draw_checkerboard:                          ; scr13_draw_checkerboard(ax > Start, bx > End, dl > Color) => None
+    call scr13_pixel_set
+    add ax, 3
+    cmp ax, bx
+    jl scr13_draw_checkerboard
+    ret
+
 scr13_pixel_set:                                  ; scr13_pixel_set(ax > Index, dl > Color) => None
     mov di, ax
     mov [es:di], dl
     ret
-scr13_pixel_set_if:                               ; scr13_pixel_set_if(ax > Index, dl > Color, cf > Condition) => None
+scr13_pixel_set_if:                               ; scr13_pixel_set_if(ax > Index, dl > Color, ef > Condition) => None
     jne .scr13_pixel_set_if_false
     call scr13_pixel_set
+    .scr13_pixel_set_if_false:
+    ret
+scr13_pixel_set_if_x2:                            ; scr13_pixel_set_if_x2(ax > Index, dl > Color, ef > Condition) => None
+    jne .scr13_pixel_set_if_false
+    mov [scr13_pixel_set_if_ax], ax
+    call scr13_pixel_set
+    inc ax
+    call scr13_pixel_set
+    add ax, SCR13_WIDTH - 1
+    call scr13_pixel_set
+    inc ax
+    call scr13_pixel_set
+    mov ax, [scr13_pixel_set_if_ax]
+    .scr13_pixel_set_if_false:
+    ret
+scr13_pixel_set_if_x4:                            ; scr13_pixel_set_if_x4(ax > Index, dl > Color, ef > Condition) => None
+    jne .scr13_pixel_set_if_false
+    mov [scr13_pixel_set_if_ax], ax
+    call scr13_pixel_set
+    inc ax
+    call scr13_pixel_set
+    inc ax
+    call scr13_pixel_set
+    inc ax
+    call scr13_pixel_set
+    add ax, SCR13_WIDTH - 3
+    call scr13_pixel_set
+    inc ax
+    call scr13_pixel_set
+    inc ax
+    call scr13_pixel_set
+    inc ax
+    call scr13_pixel_set
+    add ax, SCR13_WIDTH - 3
+    call scr13_pixel_set
+    inc ax
+    call scr13_pixel_set
+    inc ax
+    call scr13_pixel_set
+    inc ax
+    call scr13_pixel_set
+    add ax, SCR13_WIDTH - 3
+    call scr13_pixel_set
+    inc ax
+    call scr13_pixel_set
+    inc ax
+    call scr13_pixel_set
+    inc ax
+    call scr13_pixel_set
+    mov ax, [scr13_pixel_set_if_ax]
     .scr13_pixel_set_if_false:
     ret
 scr13_pixel_get:                                  ; scr13_pixel_get(ax > Index) => dl > Color
@@ -36,10 +93,30 @@ scr13_print_char_partof_str:                      ; scr13_print_char_partof_str(
     mov dl, [scr13_print_char_partof_str_dl]
     add ax, 4
     ret
+scr13_print_char_partof_str_x2:                   ; scr13_print_char_partof_str_x2(ax > Index, dl > Color, bx > Char) => None
+    mov [scr13_print_char_partof_str_ax], ax
+    mov [scr13_print_char_partof_str_bx], bx
+    mov [scr13_print_char_partof_str_dl], dl
+    call scr13_print_char_x2
+    mov ax, [scr13_print_char_partof_str_ax]
+    mov bx, [scr13_print_char_partof_str_bx]
+    mov dl, [scr13_print_char_partof_str_dl]
+    add ax, 8
+    ret
+scr13_print_char_partof_str_x4:                   ; scr13_print_char_partof_str_x2(ax > Index, dl > Color, bx > Char) => None
+    mov [scr13_print_char_partof_str_ax], ax
+    mov [scr13_print_char_partof_str_bx], bx
+    mov [scr13_print_char_partof_str_dl], dl
+    call scr13_print_char_x4
+    mov ax, [scr13_print_char_partof_str_ax]
+    mov bx, [scr13_print_char_partof_str_bx]
+    mov dl, [scr13_print_char_partof_str_dl]
+    add ax, 16
+    ret
 
 scr13_print_char:                                 ; scr13_print_char(ax > Index, dl > Color, bx > Char) => None
     mov byte [scr13_print_char_color], dl
-    sub bx, 'A'
+    sub bx, '.'
     mov cx, ax
     mov ax, 0x0004
     mul bx
@@ -82,6 +159,96 @@ scr13_print_char:                                 ; scr13_print_char(ax > Index,
         mov byte [scr13_print_char_current_pixel_mask], 0b10000000
         jmp .scr13_print_char_loop2
 
+scr13_print_char_x2:                              ; scr13_print_char_x2(ax > Index, dl > Color, bx > Char) => None
+    mov byte [scr13_print_char_color], dl
+    sub bx, '.'
+    mov cx, ax
+    mov ax, 0x0004
+    mul bx
+    mov bx, ax
+    mov ax, cx
+    add bx, scr13_font_start
+    mov byte [scr13_print_char_current_pixel_mask], 0b10000000
+    mov byte [scr13_print_char_current_pixel], 0x00
+    .scr13_print_char_x2_loop1:
+        mov cx, [bx]
+        and cx, [scr13_print_char_current_pixel_mask]
+        cmp cx, [scr13_print_char_current_pixel_mask]
+        mov dl, [scr13_print_char_color]
+        call scr13_pixel_set_if_x2
+        shr byte [scr13_print_char_current_pixel_mask], 1
+        add ax, 2
+
+        mov cx, [scr13_print_char_current_pixel]
+        and cx, 0b00000111
+        cmp cx, 0b00000011
+        je .scr13_print_char_x2_newline
+
+        mov cx, [scr13_print_char_current_pixel]
+        and cx, 0b00000111
+        cmp cx, 0b00000111
+        je .scr13_print_char_x2_nextbyte
+    .scr13_print_char_x2_loop2:
+        inc byte [scr13_print_char_current_pixel]
+        cmp byte [scr13_print_char_current_pixel], 32
+        jne .scr13_print_char_x2_loop1
+        ret
+    
+    .scr13_print_char_x2_newline:
+        add ax, SCR13_WIDTH * 2 - 8
+        jmp .scr13_print_char_x2_loop2
+
+    .scr13_print_char_x2_nextbyte:
+        add ax, SCR13_WIDTH * 2 - 8
+        inc bx
+        mov byte [scr13_print_char_current_pixel_mask], 0b10000000
+        jmp .scr13_print_char_x2_loop2
+
+scr13_print_char_x4:                              ; scr13_print_char_x4(ax > Index, dl > Color, bx > Char) => None
+    mov byte [scr13_print_char_color], dl
+    sub bx, '.'
+    mov cx, ax
+    mov ax, 0x0004
+    mul bx
+    mov bx, ax
+    mov ax, cx
+    add bx, scr13_font_start
+    mov byte [scr13_print_char_current_pixel_mask], 0b10000000
+    mov byte [scr13_print_char_current_pixel], 0x00
+    .scr13_print_char_x4_loop1:
+        mov cx, [bx]
+        and cx, [scr13_print_char_current_pixel_mask]
+        cmp cx, [scr13_print_char_current_pixel_mask]
+        mov dl, [scr13_print_char_color]
+        call scr13_pixel_set_if_x4
+        shr byte [scr13_print_char_current_pixel_mask], 1
+        add ax, 4
+
+        mov cx, [scr13_print_char_current_pixel]
+        and cx, 0b00000111
+        cmp cx, 0b00000011
+        je .scr13_print_char_x4_newline
+
+        mov cx, [scr13_print_char_current_pixel]
+        and cx, 0b00000111
+        cmp cx, 0b00000111
+        je .scr13_print_char_x4_nextbyte
+    .scr13_print_char_x4_loop2:
+        inc byte [scr13_print_char_current_pixel]
+        cmp byte [scr13_print_char_current_pixel], 32
+        jne .scr13_print_char_x4_loop1
+        ret
+    
+    .scr13_print_char_x4_newline:
+        add ax, SCR13_WIDTH * 4 - 16
+        jmp .scr13_print_char_x4_loop2
+
+    .scr13_print_char_x4_nextbyte:
+        add ax, SCR13_WIDTH * 4 - 16
+        inc bx
+        mov byte [scr13_print_char_current_pixel_mask], 0b10000000
+        jmp .scr13_print_char_x4_loop2
+
 scr13_global_ret: ret
 
 scr13_print_char_partof_str_ax: dw 0x0000
@@ -90,8 +257,15 @@ scr13_print_char_partof_str_dl: db 0x00
 scr13_print_char_current_pixel_mask: dw 0x0000
 scr13_print_char_current_pixel: dw 0x0000
 scr13_print_char_color: db 0x00
+scr13_pixel_set_if_ax: dw 0x0000
 
 scr13_font_start:
+scr13_font__dot:
+    db 0b00000000
+    db 0b00000000
+    db 0b00000000
+    db 0b01000000
+times ('A' - '.' - 1) * 4 db 0
 scr13_font__A:
     db 0b00000100
     db 0b10101010
