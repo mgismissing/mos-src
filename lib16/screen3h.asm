@@ -6,12 +6,28 @@ scr_init:                                       ; scr_init() => None
     mov ax, 0x0000
     ret
 
+scr_clear:                                      ; scr_clear(dl > Background Color) => None
+    mov ax, 0x0003
+    int 0x10
+    mov ax, 0x0000
+    mov bx, SCR_SIZE
+    call scr_draw_line
+    ret
+
 scr_cursor_disable:                             ; scr_cursor_disable() => None
     cmp byte [boot_safe_mode_status], 0x01
     je scr_global_ret
     mov ax, 0x0000
     mov ah, 0x01
     mov ch, 0x3F
+    int 0x10
+    ret
+
+scr_cursor_enable:                              ; scr_cursor_enable(cx > Cursor Type) => None
+    cmp byte [boot_safe_mode_status], 0x01
+    je scr_global_ret
+    mov ax, 0x0000
+    mov ah, 0x01
     int 0x10
     ret
 
@@ -32,17 +48,79 @@ scr_vga_disable_blinking:                       ; scr_vga_disable_blinking() => 
     out dx, al
     ret
 
-scr_cursor_set_pos:                             ; scr_cursor_set_pos(dl > X Position, dh > Y Position) => None
-    mov ax, 0
-    mov bx, 0
-    mov ah, 2
-    mov bh, 0
-    int 10h
+scr_vga_enable_blinking:                        ; scr_vga_enable_blinking() => None
+    cmp byte [boot_safe_mode_status], 0x01
+    je scr_global_ret
+    mov dx, 0x03DA                              ; reset the flip-flop
+    in al, dx
+
+    mov dx, 0x03C0                              ; index 0x10  (20h + 10h)?
+    mov al, 0x30
+    out dx, al
+
+    inc dx                                      ; set bit 3 to enable blink
+    in al, dx
+    or al, 0b00001000
+    dec dx
+    out dx, al
     ret
+
+scr_cursor_set_pos:                             ; scr_cursor_set_pos(dl > X Position, dh > Y Position) => None
+    mov ax, 0x0200
+    int 0x10
+    ret
+
+scr_cursor_get_pos:                            ; scr_cursor_get_pos() => ch: Scanline Start, cl: Scanline End, dh > Y Position, dl > X Position
+    mov ax, 0x0300
+    int 0x10
+    ret
+
+scr_cursor_get_char:                           ; scr_cursor_get_char(bh > Page Number) => ah > Color, al > Char
+    mov ax, 0x0800
+    int 0x10
+    ret
+
+scr_cursor_get_char_at:                        ; scr_cursor_get_char_at(dl > X Position, dh > Y Position, bh > Page Number) => ah > Color, al > Char
+    call scr_cursor_set_pos
+    call scr_cursor_get_char
+    ret
+
+scr_cursor_print_char:                         ; scr_cursor_print_char(al > Char, bh > Page Number, bl > Color, cx > Times to print) => None
+    mov ah, 0x09
+    int 0x10
+    mov ah, 0x0E
+    int 0x10
+    ret
+
+scr_cursor_print_char_special:                 ; scr_cursor_print_char_special(al > Char, bh > Page Number, cx > Times to print) => None
+    mov ah, 0x0E
+    int 0x10
+    ret
+
+scr_cursor_print_string:                       ; scr_cursor_print_string(si > String Pointer, bh > Page Number, bl > Color) => None
+    lodsb
+    cmp al, 0
+    je scr_global_ret
+    mov cx, 1
+    call scr_cursor_print_char
+    jmp scr_cursor_print_string
+
+scr_cursor_print_string_special:               ; scr_cursor_print_string_special(si > String Pointer, bh > Page Number) => None
+    lodsb
+    cmp al, 0
+    je scr_global_ret
+    mov cx, 1
+    call scr_cursor_print_char_special
+    jmp scr_cursor_print_string_special
 
 scr_char_set:                                   ; scr_char_set(ax > Index, dl > Color, dh > Char) => None
     mov di, ax
     mov [es:di], dh
+    inc di
+    mov [es:di], dl
+    ret
+scr_char_set_color:                             ; scr_char_set_color(ax > Index, dl > Color) => None
+    mov di, ax
     inc di
     mov [es:di], dl
     ret
@@ -78,3 +156,5 @@ scr_draw_line:                                  ; scr_draw_line(ax > Start, bx >
 
 scr_global_ret:
     ret
+
+scr_str_crlf: db 0x0D, 0x0A, 0x00

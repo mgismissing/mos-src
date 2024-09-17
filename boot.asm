@@ -56,9 +56,16 @@ mov dl, 0x0F
 mov bx, boot_load_options2
 call boot_scr_print_string
 
+mov ax, SCR_WIDTH * 4
+mov dl, 0x0F
+mov bx, boot_load_options3
+call boot_scr_print_string
+
 mov byte [boot_safe_mode_status], 0x00
 
 call kb_waitForKey
+cmp ah, 0x40
+je cmd_start
 cmp ah, 0x42
 je safe_mode
 
@@ -141,6 +148,8 @@ boot_loading_err1:
 boot_load_options1:
     db "Press any key to start MagnesiumOS", 0
 boot_load_options2:
+    db "Press F6 to start console mode", 0
+boot_load_options3:
     db "Press F8 to load Safe Mode", 0
 boot_safe_mode_status:
     db 0x00
@@ -149,6 +158,8 @@ times 510-($-$$) db 0x00
 db 0x55, 0xAA
 
 ;###############################################################################################################################
+
+%include "macros.asm"
 
 safe_mode:
     mov ax, 0x0000
@@ -488,6 +499,8 @@ error_asm:
 %include "lib16/error.asm"
 audio_asm:
 %include "lib16/audio.asm"
+cmd_asm:
+%include "cmd.asm"
 
 test: db 0xFF
 
