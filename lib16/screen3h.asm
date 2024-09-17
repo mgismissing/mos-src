@@ -7,6 +7,8 @@ scr_init:                                       ; scr_init() => None
     ret
 
 scr_cursor_disable:                             ; scr_cursor_disable() => None
+    cmp byte [boot_safe_mode_status], 0x01
+    je scr_global_ret
     mov ax, 0x0000
     mov ah, 0x01
     mov ch, 0x3F
@@ -14,6 +16,8 @@ scr_cursor_disable:                             ; scr_cursor_disable() => None
     ret
 
 scr_vga_disable_blinking:                       ; scr_vga_disable_blinking() => None
+    cmp byte [boot_safe_mode_status], 0x01
+    je scr_global_ret
     mov dx, 0x03DA                              ; reset the flip-flop
     in al, dx
 

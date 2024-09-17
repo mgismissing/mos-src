@@ -6,6 +6,7 @@ SCR_WIDTH           equ  0xA0
 SCR_HEIGHT          equ  0x32
 SCR_SIZE            equ  0x0FA0
 SCR_ADDRESS_END     equ  0xD740
+SCR_HEIGHT_MIDDLE   equ  0x07D0
 
 SCR13_ADDRESS_START   equ  0xA0000
 SCR13_WIDTH           equ  0x0140
@@ -26,11 +27,11 @@ mov es, bx
 mov bx, 0x7E00
 call disk_read
 
+call boot_scr_cursor_disable
+
 mov ax, SCR_ADDRESS_START
 mov es, ax
 mov ax, 0x0000
-
-call boot_scr_cursor_disable
 
 mov ax, 0x0000
 mov dl, 0x0F
@@ -45,9 +46,23 @@ mov dl, 0x0A
 mov bx, boot_loading_done1
 call boot_scr_print_string
 
-call delay_1s
+mov ax, SCR_WIDTH * 2
+mov dl, 0x0F
+mov bx, boot_load_options1
+call boot_scr_print_string
 
-jmp extended_space_start
+mov ax, SCR_WIDTH * 3
+mov dl, 0x0F
+mov bx, boot_load_options2
+call boot_scr_print_string
+
+mov byte [boot_safe_mode_status], 0x00
+
+call kb_waitForKey
+cmp ah, 0x42
+je safe_mode
+
+jmp extended_space_load
 
 boot_load_error:
 mov ax, 0x0002
@@ -71,11 +86,6 @@ call boot_scr_print_string
 mov ax, SCR_WIDTH
 mov dl, 0x1F
 mov bx, boot_error_0x0001_d
-call boot_scr_print_string
-
-mov ax, SCR_WIDTH * 3
-mov dl, 0x1F
-mov bx, boot_error_help1
 call boot_scr_print_string
 
 end:
@@ -115,34 +125,73 @@ disk_asm:
 %include "lib16/disk.asm"
 delay_asm:
 %include "lib16/delay.asm"
+kb_asm:
+%include "lib16/kb.asm"
 
 boot_error_0x0001_t:
     db "Error 0x0001:", 0
 boot_error_0x0001_d:
     db "Cannot read past the first sector.", 0
-boot_error_help1:
-    db "Please read the user manual for more information.", 0
 boot_loading1:
     db "[      ] Executing Kernel check", 0
 boot_loading_done1:
     db "  OK  ", 0
 boot_loading_err1:
     db "FAILED", 0
+boot_load_options1:
+    db "Press any key to start MagnesiumOS", 0
+boot_load_options2:
+    db "Press F8 to load Safe Mode", 0
+boot_safe_mode_status:
+    db 0x00
 
-times 510-($-$$) db 0
+times 510-($-$$) db 0x00
 db 0x55, 0xAA
 
 ;###############################################################################################################################
 
-extended_space_start:
+safe_mode:
+    mov ax, 0x0000
+    mov bx, SCR_SIZE
+    mov dl, 0x0C
+    call scr_draw_line
+
+    mov ax, 0x0000
+    mov dl, 0x0C
+    mov bx, sm_str_warning1
+    call scr_print_string
+    mov ax, SCR_WIDTH
+    mov bx, sm_str_warning2
+    call scr_print_string
+    mov ax, SCR_WIDTH * 5
+    mov bx, sm_str_warning3
+    call scr_print_string
+    mov ax, SCR_WIDTH * 6
+    mov bx, sm_str_warning4
+    call scr_print_string
+    call kb_waitForKey
+    cmp ah, 0x1C
+    jne extended_space_load
+    mov ax, SCR_WIDTH * 3
+    mov bx, sm_str_warning5
+    call scr_print_string
+    call kb_waitForKey
+    cmp ah, 0x1C
+    jne extended_space_load
+safe_mode_confirm:
+    mov byte [boot_safe_mode_status], 0x01
+    jmp extended_space_start
+
+extended_space_load:
+    mov byte [var_currentSelection], 0x00
     call mos_show_logo
     call delay_2s
+    jmp extended_space_start
 
+extended_space_start:
     call scr_init
-    call scr_vga_disable_blinking
     call scr_cursor_disable
-    mov byte [var_currentSelection], 0x00
-
+    call scr_vga_disable_blinking
     mov bx, SCR_WIDTH                           ; MENU BAR
     mov dl, 0xE0
     mov dh, 0x00
@@ -276,7 +325,7 @@ execute_current_selection:
     jmp extended_space_loop_main
 
 execute_selection_00:
-    jmp extended_space_loop_main
+%include "window.asm"
 
 execute_selection_01:
     mov word [error_t], error_0x0002_t
@@ -285,17 +334,17 @@ execute_selection_01:
     jmp $
 
 execute_selection_02:
-    jmp extended_space_loop_main
+    jmp test_game_init
 
 execute_selection_03:
-    jmp system_shutdown
+    cmp byte [boot_safe_mode_status], 0x01
+    je sm_system_shutdown_screen
+    jmp system_shutdown_screen
 
 extended_space_end:
     jmp $
 
-system_shutdown:
-    call power_shutdown
-    
+system_shutdown_screen:
     call scr13_init
 
     mov ax, 0x0000
@@ -340,77 +389,20 @@ system_shutdown:
     
     mov ax, SCR13_HEIGHT_MIDDLE - (SCR13_WIDTH * 4) + SCR13_WIDTH_MIDDLE - (40 * 2)
     mov dl, 0x0E
-    mov bx, 'I'
-    call scr13_print_char_partof_str
-    mov bx, 'T'
-    call scr13_print_char_partof_str
-    add ax, 4
-    mov bx, 'I'
-    call scr13_print_char_partof_str
-    mov bx, 'S'
-    call scr13_print_char_partof_str
-    add ax, 4
-    mov bx, 'N'
-    call scr13_print_char_partof_str
-    mov bx, 'O'
-    call scr13_print_char_partof_str
-    mov bx, 'W'
-    call scr13_print_char_partof_str
-    add ax, 4
-    mov bx, 'S'
-    call scr13_print_char_partof_str
-    mov bx, 'A'
-    call scr13_print_char_partof_str
-    mov bx, 'F'
-    call scr13_print_char_partof_str
-    mov bx, 'E'
-    call scr13_print_char_partof_str
-    add ax, 4
-    mov bx, 'T'
-    call scr13_print_char_partof_str
-    mov bx, 'O'
-    call scr13_print_char_partof_str
-    add ax, 4
-    mov bx, 'T'
-    call scr13_print_char_partof_str
-    mov bx, 'U'
-    call scr13_print_char_partof_str
-    mov bx, 'R'
-    call scr13_print_char_partof_str
-    mov bx, 'N'
-    call scr13_print_char_partof_str
-    add ax, 4
-    mov bx, 'O'
-    call scr13_print_char_partof_str
-    mov bx, 'F'
-    call scr13_print_char_partof_str
-    call scr13_print_char_partof_str
-    add ax, 4
-    mov bx, 'Y'
-    call scr13_print_char_partof_str
-    mov bx, 'O'
-    call scr13_print_char_partof_str
-    mov bx, 'U'
-    call scr13_print_char_partof_str
-    mov bx, 'R'
-    call scr13_print_char_partof_str
-    add ax, 4
-    mov bx, 'C'
-    call scr13_print_char_partof_str
-    mov bx, 'O'
-    call scr13_print_char_partof_str
-    mov bx, 'M'
-    call scr13_print_char_partof_str
-    mov bx, 'P'
-    call scr13_print_char_partof_str
-    mov bx, 'U'
-    call scr13_print_char_partof_str
-    mov bx, 'T'
-    call scr13_print_char_partof_str
-    mov bx, 'E'
-    call scr13_print_char_partof_str
-    mov bx, 'R'
-    call scr13_print_char_partof_str
+    mov bx, str_shutdown
+    call scr13_print_string
+    jmp $
+sm_system_shutdown_screen:
+    mov ax, 0x0000
+    mov bx, SCR_SIZE
+    mov dl, 0x00
+    call scr_draw_line
+
+    mov ax, SCR_HEIGHT_MIDDLE - (20 * 2)
+    mov dl, 0x0E
+    mov bx, sm_str_shutdown
+    call scr_print_string
+
     jmp $
 
 mos_show_logo:
@@ -448,25 +440,8 @@ mos_show_logo:
 
     mov ax, SCR13_WIDTH * 191 + 1
     mov dl, 0x15
-    mov bx, 'L'
-    call scr13_print_char_partof_str
-    mov bx, 'O'
-    call scr13_print_char_partof_str
-    mov bx, 'A'
-    call scr13_print_char_partof_str
-    mov bx, 'D'
-    call scr13_print_char_partof_str
-    mov bx, 'I'
-    call scr13_print_char_partof_str
-    mov bx, 'N'
-    call scr13_print_char_partof_str
-    mov bx, 'G'
-    call scr13_print_char_partof_str
-    mov bx, '.'
-    call scr13_print_char_partof_str
-    call scr13_print_char_partof_str
-    call scr13_print_char_partof_str
-
+    mov bx, str_loading
+    call scr13_print_string
     ret
 
 var_start:
@@ -511,8 +486,6 @@ power_asm:
 %include "lib16/power.asm"
 error_asm:
 %include "lib16/error.asm"
-kb_asm:
-%include "lib16/kb.asm"
 audio_asm:
 %include "lib16/audio.asm"
 
@@ -530,9 +503,182 @@ error_start:
 error_0x0002_t: db "Error 0x0002:", 0
 error_0x0002_d: db "The user manually invoked this error message.", 0
 
+sm_str_start:
+sm_str_warning1: db "WARNING", 0
+sm_str_warning2: db "Booting MagnesiumOS in Safe Mode can lead to instability and loss of data.", 0
+sm_str_warning3: db "Back     [Any key]", 0
+sm_str_warning4: db "Continue [Enter  ]", 0
+sm_str_warning5: db "This is the final warning. Really continue?", 0
+sm_str_shutdown: db "It is now safe to turn off your computer", 0
+
+str_shutdown: db "IT IS NOW SAFE TO TURN OFF YOUR COMPUTER", 0
+str_loading: db "LOADING...", 0
 
 test_game_init:
-call scr13_init
+    call scr13_init
 
+test_game_loop:
+    call .draw_screen_objects
+
+    ; Draw the player
+    cmp byte [test_game_var.plr_walked], 0x01
+    jne .draw_player_idle
+
+    ; Make the player walk
+    .draw_player_walking:
+    mov bx, 8
+    mov ax, [test_game_var.plr_position]
+    mul bx
+    mov bx, test_game_img_8x8.plr_walking_left
+    add ax, 4
+    cmp byte [test_game_var.plr_direction], 0x01
+    jne .keep_drawing_player_walking
+    mov bx, test_game_img_8x8.plr_walking_right
+    sub ax, 8
+    .keep_drawing_player_walking:
+    call scr13_draw_img_8x8
+    call delay_50ms
+    jmp .draw_player_idle
+
+    ; Draw the idle animation for the player
+    .draw_player_idle:
+    call .draw_screen_objects
+
+    mov bx, 8
+    mov ax, [test_game_var.plr_position]
+    mul bx
+    mov bx, test_game_img_8x8.plr_idle_left
+    cmp byte [test_game_var.plr_direction], 0x01
+    jne .keep_drawing_player
+    mov bx, test_game_img_8x8.plr_idle_right
+    .keep_drawing_player:
+    call scr13_draw_img_8x8
+
+    ; Wait for the user to press a key
+    call delay_50ms
+    call kb_waitForKey
+    mov byte [test_game_var.plr_walked], 0x00
+    cmp ah, 0x4B            ; scancode for left
+    je .move_plr_left
+    cmp ah, 0x1E            ; scancode for A
+    je .move_plr_left
+    cmp ah, 0x4D            ; scancode for right
+    je .move_plr_right
+    cmp ah, 0x20            ; scancode for D
+    je .move_plr_right
+    jmp test_game_loop
+
+    .move_plr_left:
+    mov byte [test_game_var.plr_direction], 0x00
+    cmp word [test_game_var.plr_position], 0
+    je test_game_loop
+    mov byte [test_game_var.plr_walked], 0x01
+    dec word [test_game_var.plr_position]
+    jmp test_game_loop
+
+    .move_plr_right:
+    mov byte [test_game_var.plr_direction], 0x01
+    cmp word [test_game_var.plr_position], 39
+    je test_game_loop
+    mov byte [test_game_var.plr_walked], 0x01
+    inc word [test_game_var.plr_position]
+    jmp test_game_loop
+
+    .draw_screen_objects:
+    ; Fill the screen with the background color
+    mov ax, 0
+    mov bx, SCR13_SIZE
+    mov dl, 0xC9
+    call scr13_draw_line
+
+    ; Draw the tilemap for level0
+    mov ax, 0
+    
+
+    ; Return
+    ret
+
+test_game_var:
+    .plr_direction: db 0x01             ; 0: Left, 1: Right
+    .plr_position: dw 0x0000
+    .plr_walked: db 0x00                ; 0: False, 1: True
+
+;test_game_tilemap_32x8:
+;    .level0:
+;        db 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0xff, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff
+;        db 0x00, 0x03, 0x00, 0xff, 0x00, 0x00, 0xff, 0x00, 0xff, 0xff, 0xff, 0x00, 0xff, 0xff, 0xff, 0x00, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0x00, 0xff
+;        db 0x01, 0x01, 0xff, 0xff, 0xff, 0x00, 0xff, 0x00, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0x00, 0xff, 0x00, 0xff, 0x00, 0x00, 0xff, 0xff, 0x00
+;        db 0x00, 0xff, 0xff, 0xff, 0xff, 0x00, 0xff, 0x00, 0x00, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0xff
+;        db 0xff, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01, 0xff, 0xff, 0x00, 0xff, 0xff, 0xff
+;        db 0x00, 0x00, 0xff, 0xff, 0x02, 0xff, 0x02, 0xff, 0xff, 0xff, 0xff, 0x00, 0xff, 0xff, 0xff, 0x01, 0xff, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff
+;        db 0x00, 0xff, 0x00, 0xff, 0x00, 0x00, 0xff, 0xff, 0xff, 0x02, 0x02, 0x02, 0xff, 0x01, 0x00, 0xff, 0xff, 0xff, 0x00, 0xff, 0xff, 0xff, 0x00, 0xff, 0xff, 0xff, 0x00, 0xff, 0xff
+;        db 0xff, 0x00, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0xff, 0xff, 0xff, 0x00, 0xff, 0xff, 0x00, 0x00, 0xff, 0x00, 0xff, 0xff
+
+test_game_img_8x8: ; PAL: 0xC9 BACK, 0x89 BROWN, 0x8F GREEN, 0x5B YELLOW
+    ; BLANK TILE: ts 0x00
+    .tile_wall_stone_up:                        ; ts 0x01
+        db 0xC9, 0x5B, 0x5B, 0xC9, 0x5B, 0x5B, 0x5B, 0x5B
+        db 0x89, 0x89, 0x89, 0x89, 0xC9, 0x89, 0x89, 0xC9
+        db 0x89, 0x89, 0x89, 0x89, 0xC9, 0xC9, 0xC9, 0xC9
+        db 0xC9, 0x89, 0x89, 0xC9, 0x89, 0x89, 0xC9, 0x89
+        db 0xC9, 0xC9, 0xC9, 0xC9, 0x89, 0x89, 0xC9, 0xC9
+        db 0xC9, 0xC9, 0xC9, 0xC9, 0xC9, 0xC9, 0xC9, 0xC9
+        db 0xC9, 0xC9, 0xC9, 0xC9, 0xC9, 0xC9, 0xC9, 0xC9
+        db 0xC9, 0xC9, 0xC9, 0xC9, 0xC9, 0xC9, 0xC9, 0xC9
+    .tile_wall_grass_up:                        ; ts 0x02
+        db 0xC9, 0x5B, 0x5B, 0xC9, 0x5B, 0x5B, 0x5B, 0x5B
+        db 0x8F, 0x8F, 0x8F, 0xC9, 0xC9, 0x8F, 0x8F, 0xC9
+        db 0x8F, 0x8F, 0xC9, 0x8F, 0xC9, 0x8F, 0xC9, 0xC9
+        db 0xC9, 0x8F, 0xC9, 0x8F, 0xC9, 0xC9, 0xC9, 0xC9
+        db 0xC9, 0x8F, 0xC9, 0xC9, 0xC9, 0xC9, 0x8F, 0xC9
+        db 0xC9, 0xC9, 0xC9, 0xC9, 0xC9, 0xC9, 0x8F, 0xC9
+        db 0xC9, 0xC9, 0xC9, 0xC9, 0xC9, 0xC9, 0xC9, 0xC9
+        DB 0xC9, 0xC9, 0xC9, 0xC9, 0xC9, 0xC9, 0xC9, 0xC9
+    .tile_door:                                 ; ts 0x03
+        db 0xC9, 0xC9, 0x89, 0x5B, 0x5B, 0x89, 0xC9, 0xC9
+        db 0xC9, 0x89, 0x5B, 0xC9, 0xC9, 0x5B, 0x89, 0xC9
+        db 0xC9, 0x5B, 0xC9, 0xC9, 0xC9, 0xC9, 0x5B, 0xC9
+        db 0xC9, 0x5B, 0xC9, 0xC9, 0xC9, 0xC9, 0x5B, 0xC9
+        db 0xC9, 0x5B, 0xC9, 0xC9, 0xC9, 0xC9, 0x5B, 0xC9
+        db 0xC9, 0x5B, 0xC9, 0xC9, 0xC9, 0xC9, 0x5B, 0xC9
+        db 0xC9, 0x5B, 0xC9, 0xC9, 0xC9, 0xC9, 0x5B, 0xC9
+        db 0xC9, 0x5B, 0xC9, 0xC9, 0xC9, 0xC9, 0x5B, 0xC9
+
+    .plr_idle_left:
+        db 0xFF, 0xFF, 0xFF, 0x89, 0x89, 0x89, 0xFF, 0xFF
+        db 0xFF, 0xFF, 0x89, 0x5B, 0x89, 0xFF, 0xFF, 0xFF
+        db 0xFF, 0x89, 0x89, 0x89, 0x89, 0x89, 0xFF, 0xFF
+        db 0xFF, 0x89, 0x5B, 0x8F, 0x5B, 0x89, 0x89, 0xFF
+        db 0xFF, 0xFF, 0x5B, 0x8F, 0x5B, 0x8F, 0xFF, 0xFF
+        db 0xFF, 0xFF, 0x8F, 0x8F, 0x8F, 0x8F, 0xFF, 0xFF
+        db 0xFF, 0x8F, 0x89, 0xFF, 0x8F, 0x89, 0xFF, 0xFF
+        db 0xFF, 0x89, 0x89, 0xFF, 0x89, 0x89, 0xFF, 0xFF
+    .plr_idle_right:
+        db 0xFF, 0xFF, 0x89, 0x89, 0x89, 0xFF, 0xFF, 0xFF
+        db 0xFF, 0xFF, 0xFF, 0x89, 0x5B, 0x89, 0xFF, 0xFF
+        db 0xFF, 0xFF, 0x89, 0x89, 0x89, 0x89, 0x89, 0xFF
+        db 0xFF, 0x89, 0x89, 0x5B, 0x8F, 0x5B, 0x89, 0xFF
+        db 0xFF, 0xFF, 0x8F, 0x5B, 0x8F, 0x5B, 0xFF, 0xFF
+        db 0xFF, 0xFF, 0x8F, 0x8F, 0x8F, 0x8F, 0xFF, 0xFF
+        db 0xFF, 0xFF, 0x89, 0x8F, 0xFF, 0x89, 0x8F, 0xFF
+        db 0xFF, 0xFF, 0x89, 0x89, 0xFF, 0x89, 0x89, 0xFF
+    .plr_walking_left:
+        db 0xFF, 0xFF, 0xFF, 0x89, 0x89, 0x89, 0xFF, 0xFF
+        db 0xFF, 0xFF, 0x89, 0x5B, 0x89, 0xFF, 0xFF, 0xFF
+        db 0xFF, 0x89, 0x89, 0x89, 0x89, 0x89, 0xFF, 0xFF
+        db 0xFF, 0x89, 0x5B, 0x8F, 0x5B, 0x89, 0x89, 0xFF
+        db 0xFF, 0xFF, 0x5B, 0x8F, 0x5B, 0x8F, 0xFF, 0xFF
+        db 0xFF, 0xFF, 0x8F, 0x8F, 0x8F, 0x8F, 0xFF, 0xFF
+        db 0xFF, 0x89, 0x8F, 0xFF, 0x8F, 0x8F, 0x89, 0xFF
+        db 0xFF, 0x89, 0x89, 0xFF, 0xFF, 0x89, 0x89, 0xFF
+    .plr_walking_right:
+        db 0xFF, 0xFF, 0x89, 0x89, 0x89, 0xFF, 0xFF, 0xFF
+        db 0xFF, 0xFF, 0xFF, 0x89, 0x5B, 0x89, 0xFF, 0xFF
+        db 0xFF, 0xFF, 0x89, 0x89, 0x89, 0x89, 0x89, 0xFF
+        db 0xFF, 0x89, 0x89, 0x5B, 0x8F, 0x5B, 0x89, 0xFF
+        db 0xFF, 0xFF, 0x8F, 0x5B, 0x8F, 0x5B, 0xFF, 0xFF
+        db 0xFF, 0xFF, 0x8F, 0x8F, 0x8F, 0x8F, 0xFF, 0xFF
+        db 0xFF, 0x89, 0x8F, 0x8F, 0xFF, 0x8F, 0x89, 0xFF
+        db 0xFF, 0x89, 0x89, 0xFF, 0xFF, 0x89, 0x89, 0xFF
 
 times 512 * 32 - ($-$$) db 0

@@ -15,11 +15,6 @@ start_bsod:                             ; start_bsod(error_t, error_d) => None
     mov bx, [error_d]
     call boot_scr_print_string
 
-    mov ax, SCR_WIDTH * 3
-    mov dl, 0x1F
-    mov bx, boot_error_help1
-    call boot_scr_print_string
-
     ret
 start_extended_bsod:                    ; start_extended_bsod(error_t, error_d) => None
     mov ax, 0x0000

@@ -26,3 +26,10 @@ delay_200ms:                ; delay_200ms() => None
     mov dx, 0x0D40
     int 0x15
     ret
+delay_50ms:                 ; delay_50ms() => None
+    mov ax, 0x0000
+    mov ah, 0x86
+    mov cx, 0x0000
+    mov dx, 0xC350
+    int 0x15
+    ret
