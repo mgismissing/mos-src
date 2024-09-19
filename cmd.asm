@@ -4,6 +4,7 @@ cmd_start:
     call scr_clear
     mov cx, 0x000F
     call scr_cursor_enable
+    call scr_vga_disable_blinking
     jmp cmd_main
 
 cmd_main:
@@ -11,6 +12,8 @@ cmd_main:
     m_scr_cursor_print_string cmdstr_welcome1, 0x0F
     m_scr_cursor_print_crlf
     m_scr_cursor_print_string cmdstr_welcome2, 0x0F
+    m_scr_cursor_print_crlf
+    m_scr_cursor_print_string cmdstr_welcome3, 0x0F
     m_scr_cursor_print_crlf
     .prompt:
     mov dx, 0x1800
@@ -32,6 +35,8 @@ cmd_main:
     ; Is it a valid letter?
     cmp al, ' '
     je .show_letter
+    cmp al, '-'
+    je .show_letter
 
     ; length filter
     cmp di, cmdvar_command + 63
@@ -41,6 +46,7 @@ cmd_main:
     jl .loop
     cmp al, 'z'
     jg .loop
+    sub al, ('a' - 'A')     ; make the letter uppercase
 
     jmp .show_letter
     .show_letter:
@@ -77,17 +83,83 @@ cmd_main:
     call scr_clear
     mov cx, 0x000F
     call scr_cursor_enable
+    call scr_vga_disable_blinking
 
+    ; COMMANDS
+    ; NONE
+    mov si, cmdstr_cmd_none
+    mov di, cmdvar_command
+    call cmd_check_if_command
+    jc .start
+    
+    ; DUMP
+    mov si, cmdstr_cmd_dump
+    mov di, cmdvar_command
+    call cmd_check_if_command
+    jc cmd_run_help.cmd_dump
+    
+    ; DUMP -M
+    mov si, cmdstr_cmd_dump_memory
+    mov di, cmdvar_command
+    call cmd_check_if_command
+    jc cmd_run_dump_memory
+
+    ; DUMP -R
+    mov si, cmdstr_cmd_dump_registers
+    mov di, cmdvar_command
+    call cmd_check_if_command
+    jc cmd_run_dump_registers
+
+    ; EXIT
     mov si, cmdstr_cmd_exit
     mov di, cmdvar_command
     call cmd_check_if_command
     jc cmd_run_exit
 
+    ; HELP
     mov si, cmdstr_cmd_help
     mov di, cmdvar_command
     call cmd_check_if_command
     jc cmd_run_help
+    ; HELP DUMP
+    mov si, cmdstr_cmd_help_dump
+    mov di, cmdvar_command
+    call cmd_check_if_command
+    jc cmd_run_help.cmd_dump
+    ; HELP EXIT
+    mov si, cmdstr_cmd_help_exit
+    mov di, cmdvar_command
+    call cmd_check_if_command
+    jc cmd_run_help.cmd_exit
+    ; HELP HELP
+    mov si, cmdstr_cmd_help_help
+    mov di, cmdvar_command
+    call cmd_check_if_command
+    jc cmd_run_help.cmd_help
+    ; HELP MOS
+    mov si, cmdstr_cmd_help_mos
+    mov di, cmdvar_command
+    call cmd_check_if_command
+    jc cmd_run_help.cmd_mos
+    ; HELP TEST
+    mov si, cmdstr_cmd_help_test
+    mov di, cmdvar_command
+    call cmd_check_if_command
+    jc cmd_run_help.cmd_test
 
+    ; MOS
+    mov si, cmdstr_cmd_mos
+    mov di, cmdvar_command
+    call cmd_check_if_command
+    jc extended_space_load
+
+    ; MOS -S
+    mov si, cmdstr_cmd_mos_safe_mode
+    mov di, cmdvar_command
+    call cmd_check_if_command
+    jc safe_mode_confirm
+
+    ; TEST
     mov si, cmdstr_cmd_test
     mov di, cmdvar_command
     call cmd_check_if_command
@@ -138,14 +210,28 @@ cmd_global_return: ret
 cmdvar_command: times 64 db 0
 cmdvar_command_end: db 0
 
-cmdstr_welcome1: db 'MagnesiumOS Command Prompt', 0
+cmdstr_welcome1: db 'MagnesiumOS v0.5 Command Prompt', 0
 cmdstr_welcome2: db 'Made with ', 0x03, ' by Gabriele Graziani', 0
+cmdstr_welcome3: db 'Type "HELP" for a list of commands.', 0
+
 cmdstr_prompt: db '> ', 0
 
 cmdstr_cmd_missing: db '": No such command', 0
 
-cmdstr_cmd_exit: db 'exit', 0
-cmdstr_cmd_help: db 'help', 0
-cmdstr_cmd_test: db 'test', 0
+cmdstr_cmd_dump: db 'DUMP', 0
+cmdstr_cmd_dump_memory: db 'DUMP -M', 0
+cmdstr_cmd_dump_registers: db 'DUMP -R', 0
+cmdstr_cmd_exit: db 'EXIT', 0
+cmdstr_cmd_help: db 'HELP', 0
+cmdstr_cmd_help_dump: db 'HELP DUMP', 0
+cmdstr_cmd_help_exit: db 'HELP EXIT', 0
+cmdstr_cmd_help_help: db 'HELP HELP', 0
+cmdstr_cmd_help_mos: db 'HELP MOS', 0
+cmdstr_cmd_help_test: db 'HELP TEST', 0
+cmdstr_cmd_mos: db 'MOS', 0
+cmdstr_cmd_mos_safe_mode: db 'MOS -S', 0
+cmdstr_cmd_test: db 'TEST', 0
+
+cmdstr_cmd_none: db '', 0
 
 %include "cmd_run.asm"

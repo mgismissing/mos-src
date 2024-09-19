@@ -24,3 +24,9 @@
     mov si, scr_str_crlf
     call scr_cursor_print_string_special
 %endmacro
+
+%macro m_scr_cursor_print_hex 2
+    mov bl, %2
+    mov al, %1
+    call scr_cursor_print_hex
+%endmacro

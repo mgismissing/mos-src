@@ -31,6 +31,36 @@ scr_cursor_enable:                              ; scr_cursor_enable(cx > Cursor 
     int 0x10
     ret
 
+scr_cursor_print_hex:                           ; scr_cursor_print_hex(al > Value, bl > Color) => None
+    mov   ah, al            ; make al and ah equal so we can isolate each half of the byte
+    shr   ah, 4             ; ch now has the high nibble
+    and   al, 0x0F          ; cl now has the low nibble
+
+    push ax
+    push bx
+    mov bx, 0
+    mov bl, ah              ; get the value in the higher nybble
+    add bx, .chars          ; offset the table by the characters table pointer
+    mov al, [bx]            ; get the corresponding character
+    pop bx
+    mov cx, 0x0001
+    call scr_cursor_print_char
+    pop ax
+
+    push ax
+    push bx
+    mov bx, 0
+    mov bl, al              ; get the value in the lower nybble
+    add bx, .chars          ; offset the table by the characters table pointer
+    mov al, [bx]            ; get the corresponding character
+    pop bx
+    mov cx, 0x0001
+    call scr_cursor_print_char
+    pop ax
+    ret
+
+    .chars: db '0123456789ABCDEF'
+
 scr_vga_disable_blinking:                       ; scr_vga_disable_blinking() => None
     cmp byte [boot_safe_mode_status], 0x01
     je scr_global_ret

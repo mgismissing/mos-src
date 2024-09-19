@@ -16,6 +16,11 @@ SCR13_ADDRESS_END     equ  0xAFA00
 SCR13_WIDTH_MIDDLE    equ  0x00A0
 SCR13_HEIGHT_MIDDLE   equ  0x7D00
 
+absolute_start:
+jmp short start
+
+%include "lib16/bpb.asm"
+
 start:
 mov ax, 0x0003
 int 0x10
@@ -48,28 +53,19 @@ call boot_scr_print_string
 
 mov ax, SCR_WIDTH * 2
 mov dl, 0x0F
-mov bx, boot_load_options1
-call boot_scr_print_string
-
-mov ax, SCR_WIDTH * 3
-mov dl, 0x0F
-mov bx, boot_load_options2
-call boot_scr_print_string
-
-mov ax, SCR_WIDTH * 4
-mov dl, 0x0F
-mov bx, boot_load_options3
+mov bx, boot_load_wait
 call boot_scr_print_string
 
 mov byte [boot_safe_mode_status], 0x00
 
 call kb_waitForKey
-cmp ah, 0x40
-je cmd_start
-cmp ah, 0x42
-je safe_mode
+jmp cmd_start
+;cmp ah, 0x40
+;je cmd_start
+;cmp ah, 0x42
+;je safe_mode
 
-jmp extended_space_load
+;jmp extended_space_load
 
 boot_load_error:
 mov ax, 0x0002
@@ -145,12 +141,8 @@ boot_loading_done1:
     db "  OK  ", 0
 boot_loading_err1:
     db "FAILED", 0
-boot_load_options1:
-    db "Press any key to start MagnesiumOS", 0
-boot_load_options2:
-    db "Press F6 to start console mode", 0
-boot_load_options3:
-    db "Press F8 to load Safe Mode", 0
+boot_load_wait:
+    db "Press any key to continue...", 0
 boot_safe_mode_status:
     db 0x00
 
@@ -461,9 +453,9 @@ var_biggestSelection: db 0x03
 
 str_start:
 str__osNameExtended:
-    db ' MagnesiumOS Version 0.01 ', 0
+    db ' MagnesiumOS ', 0
 str__osNameExtended_s:
-    db '[MagnesiumOS Version 0.01]', 0
+    db '[MagnesiumOS]', 0
 str__guiClose:
     db ' X ', 0
 str__guiClose_s:
@@ -519,8 +511,8 @@ error_0x0002_d: db "The user manually invoked this error message.", 0
 sm_str_start:
 sm_str_warning1: db "WARNING", 0
 sm_str_warning2: db "Booting MagnesiumOS in Safe Mode can lead to instability and loss of data.", 0
-sm_str_warning3: db "Back     [Any key]", 0
-sm_str_warning4: db "Continue [Enter  ]", 0
+sm_str_warning3: db "Boot normally [Any key]", 0
+sm_str_warning4: db "Continue      [Enter  ]", 0
 sm_str_warning5: db "This is the final warning. Really continue?", 0
 sm_str_shutdown: db "It is now safe to turn off your computer", 0
 
@@ -694,4 +686,5 @@ test_game_img_8x8: ; PAL: 0xC9 BACK, 0x89 BROWN, 0x8F GREEN, 0x5B YELLOW
         db 0xFF, 0x89, 0x8F, 0x8F, 0xFF, 0x8F, 0x89, 0xFF
         db 0xFF, 0x89, 0x89, 0xFF, 0xFF, 0x89, 0x89, 0xFF
 
+global_end:
 times 512 * 32 - ($-$$) db 0
