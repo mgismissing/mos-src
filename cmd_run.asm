@@ -269,6 +269,8 @@ cmd_run_help:
     m_scr_cursor_print_crlf
     m_scr_cursor_print_string .str_cmd_mos4, 0x0F
     m_scr_cursor_print_crlf
+    m_scr_cursor_print_string .str_cmd_mos5, 0x0F
+    m_scr_cursor_print_crlf
     jmp .return
 
     .cmd_test:
@@ -303,7 +305,8 @@ cmd_run_help:
 
     .str_cmd_mos2: db 'MODE:', 0
     .str_cmd_mos3: db '    -S          Runs MagnesiumOS in safe mode', 0
-    .str_cmd_mos4: db '    None        Runs MagnesiumOS normally', 0
+    .str_cmd_mos4: db '    -W          Runs MagnesiumOS with a newer test GUI', 0
+    .str_cmd_mos5: db '    None        Runs MagnesiumOS normally', 0
 
 cmd_run_test:
     .color_init:

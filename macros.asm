@@ -30,3 +30,11 @@
     mov al, %1
     call scr_cursor_print_hex
 %endmacro
+
+%macro m_win_are_mouse_coords_on_area 4
+    mov ax, %1
+    mov bx, %2
+    mov cx, %3
+    mov dx, %4
+    call win_are_mouse_coords_on_area
+%endmacro

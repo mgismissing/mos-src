@@ -159,6 +159,12 @@ cmd_main:
     call cmd_check_if_command
     jc safe_mode_confirm
 
+    ; MOS -W
+    mov si, cmdstr_cmd_mos_window
+    mov di, cmdvar_command
+    call cmd_check_if_command
+    jc win_start
+
     ; TEST
     mov si, cmdstr_cmd_test
     mov di, cmdvar_command
@@ -230,6 +236,7 @@ cmdstr_cmd_help_mos: db 'HELP MOS', 0
 cmdstr_cmd_help_test: db 'HELP TEST', 0
 cmdstr_cmd_mos: db 'MOS', 0
 cmdstr_cmd_mos_safe_mode: db 'MOS -S', 0
+cmdstr_cmd_mos_window: db 'MOS -W', 0
 cmdstr_cmd_test: db 'TEST', 0
 
 cmdstr_cmd_none: db '', 0

@@ -267,6 +267,30 @@ scr13_draw_img_8x8_line:                          ; scr13_draw_img_8x8_line(ax >
     .var_ax: dw 0x0000
     .var_bx: dw 0x0000
 
+scr13_draw_img_32x32:                             ; scr13_draw_img_32x32(ax > Index, bx > Image Pointer) => None # 0xFF is TRANSPARENT
+    mov dx, 0
+    mov cx, 0
+    .loop:
+    mov dl, [bx]
+    cmp dl, 0xFF
+    je .dontdraw
+    call scr13_pixel_set
+    .dontdraw:
+    inc ax
+    inc bx
+    inc cx
+    cmp cx, 0x0400
+    je scr13_global_ret
+    mov dh, cl
+    and dh, 0b00011111
+    cmp dh, 0b00000000
+    je .newline
+    jmp .loop
+
+    .newline:
+    add ax, SCR13_WIDTH - 32
+    jmp .loop
+
 scr13_draw_img_16x16:                             ; scr13_draw_img_16x16(ax > Index, bx > Image Pointer) => None # 0xFF is TRANSPARENT
     mov dx, 0
     mov cx, 0
