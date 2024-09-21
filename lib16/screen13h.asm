@@ -107,7 +107,7 @@ scr13_draw_rect:                                  ; scr13_draw_rect(ax > Index, 
     inc cx
     jmp .loop
 
-scr13_print_string:
+scr13_print_string:                               ; scr13_print_string(ax > Index, bx > String Pointer, dl > Color) => None
     mov si, bx             ; Copy string pointer into si
 
     .next_char:
