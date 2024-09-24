@@ -38,3 +38,43 @@
     mov dx, %4
     call win_are_mouse_coords_on_area
 %endmacro
+
+%macro m_win_draw_window 5
+    mov ax, (%1) + (SCR13_WIDTH * (%2))
+    mov bx, %3
+    mov cx, %4
+    mov word [win_draw_window_title_str_pt], %5
+    call win_draw_window
+%endmacro
+
+%macro m_win_draw_button 5
+    mov ax, (%1) + (SCR13_WIDTH * (%2))
+    mov bx, %3
+    mov cx, %4
+    mov word [win_draw_button_text_str_pt], %5
+    call win_draw_button
+%endmacro
+
+%macro m_win_draw_pressed_button 5
+    mov ax, (%1) + (SCR13_WIDTH * (%2))
+    mov bx, %3
+    mov cx, %4
+    mov word [win_draw_button_text_str_pt], %5
+    call win_draw_pressed_button
+%endmacro
+
+%macro m_win_draw_border 5
+    mov ax, (%1) + (SCR13_WIDTH * (%2))
+    mov bx, %3
+    mov cx, %4
+    mov dl, %5
+    call win_draw_border
+%endmacro
+
+%macro m_win_draw_dotted_border 5
+    mov ax, (%1) + (SCR13_WIDTH * (%2))
+    mov bx, %3
+    mov cx, %4
+    mov dl, %5
+    call win_draw_dotted_border
+%endmacro

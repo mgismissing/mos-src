@@ -11,9 +11,26 @@ cmd_main:
     .start:
     m_scr_cursor_print_string cmdstr_welcome1, 0x0F
     m_scr_cursor_print_crlf
+    mov bl, 0x0E
+    mov ax, global_absolute_end - global_end
+    mov al, ah
+    call scr_cursor_print_hex
+    mov bl, 0x0E
+    mov ax, global_absolute_end - global_end
+    call scr_cursor_print_hex
+    m_scr_cursor_print_char '/', 0x0F 
+    mov bl, 0x0E
+    mov ax, global_absolute_end
+    mov al, ah
+    call scr_cursor_print_hex
+    mov bl, 0x0E
+    mov ax, global_absolute_end
+    call scr_cursor_print_hex
     m_scr_cursor_print_string cmdstr_welcome2, 0x0F
     m_scr_cursor_print_crlf
     m_scr_cursor_print_string cmdstr_welcome3, 0x0F
+    m_scr_cursor_print_crlf
+    m_scr_cursor_print_string cmdstr_welcome4, 0x0F
     m_scr_cursor_print_crlf
     .prompt:
     mov dx, 0x1800
@@ -110,12 +127,6 @@ cmd_main:
     call cmd_check_if_command
     jc cmd_run_dump_registers
 
-    ; EXIT
-    mov si, cmdstr_cmd_exit
-    mov di, cmdvar_command
-    call cmd_check_if_command
-    jc cmd_run_exit
-
     ; HELP
     mov si, cmdstr_cmd_help
     mov di, cmdvar_command
@@ -126,11 +137,6 @@ cmd_main:
     mov di, cmdvar_command
     call cmd_check_if_command
     jc cmd_run_help.cmd_dump
-    ; HELP EXIT
-    mov si, cmdstr_cmd_help_exit
-    mov di, cmdvar_command
-    call cmd_check_if_command
-    jc cmd_run_help.cmd_exit
     ; HELP HELP
     mov si, cmdstr_cmd_help_help
     mov di, cmdvar_command
@@ -141,6 +147,11 @@ cmd_main:
     mov di, cmdvar_command
     call cmd_check_if_command
     jc cmd_run_help.cmd_mos
+    ; HELP SHUTDOWN
+    mov si, cmdstr_cmd_help_shutdown
+    mov di, cmdvar_command
+    call cmd_check_if_command
+    jc cmd_run_help.cmd_shutdown
     ; HELP TEST
     mov si, cmdstr_cmd_help_test
     mov di, cmdvar_command
@@ -153,17 +164,11 @@ cmd_main:
     call cmd_check_if_command
     jc extended_space_load
 
-    ; MOS -S
-    mov si, cmdstr_cmd_mos_safe_mode
+    ; SHUTDOWN
+    mov si, cmdstr_cmd_shutdown
     mov di, cmdvar_command
     call cmd_check_if_command
-    jc safe_mode_confirm
-
-    ; MOS -W
-    mov si, cmdstr_cmd_mos_window
-    mov di, cmdvar_command
-    call cmd_check_if_command
-    jc win_start
+    jc cmd_run_shutdown
 
     ; TEST
     mov si, cmdstr_cmd_test
@@ -217,8 +222,9 @@ cmdvar_command: times 64 db 0
 cmdvar_command_end: db 0
 
 cmdstr_welcome1: db 'MagnesiumOS v0.5 Command Prompt', 0
-cmdstr_welcome2: db 'Made with ', 0x03, ' by Gabriele Graziani', 0
-cmdstr_welcome3: db 'Type "HELP" for a list of commands.', 0
+cmdstr_welcome2: db ' Bytes Free', 0
+cmdstr_welcome3: db 'Made with ', 0x03, ' by Gabriele Graziani', 0
+cmdstr_welcome4: db 'Type "HELP" for a list of commands.', 0
 
 cmdstr_prompt: db '> ', 0
 
@@ -227,16 +233,14 @@ cmdstr_cmd_missing: db '": No such command', 0
 cmdstr_cmd_dump: db 'DUMP', 0
 cmdstr_cmd_dump_memory: db 'DUMP -M', 0
 cmdstr_cmd_dump_registers: db 'DUMP -R', 0
-cmdstr_cmd_exit: db 'EXIT', 0
 cmdstr_cmd_help: db 'HELP', 0
 cmdstr_cmd_help_dump: db 'HELP DUMP', 0
-cmdstr_cmd_help_exit: db 'HELP EXIT', 0
+cmdstr_cmd_help_shutdown: db 'HELP SHUTDOWN', 0
 cmdstr_cmd_help_help: db 'HELP HELP', 0
 cmdstr_cmd_help_mos: db 'HELP MOS', 0
 cmdstr_cmd_help_test: db 'HELP TEST', 0
 cmdstr_cmd_mos: db 'MOS', 0
-cmdstr_cmd_mos_safe_mode: db 'MOS -S', 0
-cmdstr_cmd_mos_window: db 'MOS -W', 0
+cmdstr_cmd_shutdown: db 'SHUTDOWN', 0
 cmdstr_cmd_test: db 'TEST', 0
 
 cmdstr_cmd_none: db '', 0

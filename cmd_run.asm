@@ -210,11 +210,6 @@ cmd_run_dump_registers:
     .var_cx: dw 0x0000
     .var_dx: dw 0x0000
 
-cmd_run_exit:
-    cmp byte [boot_safe_mode_status], 0x01
-    je sm_system_shutdown_screen
-    jmp system_shutdown_screen
-
 cmd_run_help:
     m_scr_cursor_print_string .str_general1, 0x0F
     m_scr_cursor_print_crlf
@@ -241,12 +236,6 @@ cmd_run_help:
     m_scr_cursor_print_crlf
     jmp .return
 
-    .cmd_exit:
-    m_scr_cursor_print_string .str_cmd_dump1, 0x0F
-    m_scr_cursor_print_crlf
-    m_scr_cursor_print_crlf
-    jmp .return
-
     .cmd_help:
     m_scr_cursor_print_string .str_cmd_help1, 0x0F
     m_scr_cursor_print_crlf
@@ -262,20 +251,15 @@ cmd_run_help:
     .cmd_mos:
     m_scr_cursor_print_string .str_cmd_mos1, 0x0F
     m_scr_cursor_print_crlf
-    m_scr_cursor_print_crlf
-    m_scr_cursor_print_string .str_cmd_mos2, 0x0F
-    m_scr_cursor_print_crlf
-    m_scr_cursor_print_string .str_cmd_mos3, 0x0F
-    m_scr_cursor_print_crlf
-    m_scr_cursor_print_string .str_cmd_mos4, 0x0F
-    m_scr_cursor_print_crlf
-    m_scr_cursor_print_string .str_cmd_mos5, 0x0F
+    jmp .return
+
+    .cmd_shutdown:
+    m_scr_cursor_print_string .str_cmd_shutdown1, 0x0F
     m_scr_cursor_print_crlf
     jmp .return
 
     .cmd_test:
     m_scr_cursor_print_string .str_cmd_test1, 0x0F
-    m_scr_cursor_print_crlf
     m_scr_cursor_print_crlf
     jmp .return
 
@@ -286,12 +270,12 @@ cmd_run_help:
     .str_general1: db 'Name             Description', 0
     .str_cmd_dump1:
     .str_general2: db 'DUMP [RESOURCE]  Dumps a specified resource', 0
-    .str_cmd_exit1:
-    .str_general3: db 'EXIT             Shuts down the computer', 0
     .str_cmd_help1:
-    .str_general4: db 'HELP (COMMAND)   Shows help for the specified command', 0
+    .str_general3: db 'HELP (COMMAND)   Shows help for the specified command', 0
     .str_cmd_mos1:
-    .str_general5: db 'MOS (MODE)       Executes MagnesiumOS in the specified mode', 0
+    .str_general4: db 'MOS              Executes MagnesiumOS', 0
+    .str_cmd_shutdown1:
+    .str_general5: db 'SHUTDOWN         Shuts down the computer', 0
     .str_cmd_test1:
     .str_general6: db 'TEST             Executes some tests', 0
 
@@ -303,10 +287,8 @@ cmd_run_help:
     .str_cmd_help3: db '    Any         Shows specific help about the given command', 0
     .str_cmd_help4: db '    None        Shows the generic help page', 0
 
-    .str_cmd_mos2: db 'MODE:', 0
-    .str_cmd_mos3: db '    -S          Runs MagnesiumOS in safe mode', 0
-    .str_cmd_mos4: db '    -W          Runs MagnesiumOS with a newer test GUI', 0
-    .str_cmd_mos5: db '    None        Runs MagnesiumOS normally', 0
+cmd_run_shutdown:
+    jmp system_shutdown_screen
 
 cmd_run_test:
     .color_init:
