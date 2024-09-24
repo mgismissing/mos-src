@@ -443,7 +443,17 @@ scr13_font__exclamation_mark:
     db 0b10001000
     db 0b10000000
     db 0b10000000
-times ('-' - '!' - 1) * 4 db 0
+scr13_font__double_quotes:
+    db 0b10101010
+    db 0b00000000
+    db 0b00000000
+    db 0b00000000
+times (',' - '"' - 1) * 4 db 0
+scr13_font__comma:
+    db 0b00000000
+    db 0b00000000
+    db 0b00000000
+    db 0b01001000
 scr13_font__hyphen:
     db 0b00000000
     db 0b00001110
@@ -641,43 +651,3 @@ scr13_font__block:
     db 0b11111111
     db 0b11111111
     db 0b11111111
-scr13_font__img_power1:     ; LENGTH: 8 CHARS
-    db 0b00000000
-    db 0b00000000
-    db 0b00000001
-    db 0b00010011
-scr13_font__img_power2:
-    db 0b00000000
-    db 0b00010001
-    db 0b11011101
-    db 0b10010001
-scr13_font__img_power3:
-    db 0b00000000
-    db 0b10001000
-    db 0b10111011
-    db 0b10011000
-scr13_font__img_power4:
-    db 0b00000000
-    db 0b00000000
-    db 0b00001000
-    db 0b10001100
-scr13_font__img_power5:
-    db 0b00110011
-    db 0b00110001
-    db 0b00010000
-    db 0b00000000
-scr13_font__img_power6:
-    db 0b00000000
-    db 0b00001000
-    db 0b11001111
-    db 0b00110000
-scr13_font__img_power7:
-    db 0b00000000
-    db 0b00000001
-    db 0b00111111
-    db 0b11000000
-scr13_font__img_power8:
-    db 0b11001100
-    db 0b11001000
-    db 0b10000000
-    db 0b00000000
