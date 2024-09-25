@@ -78,3 +78,10 @@
     mov dl, %5
     call win_draw_dotted_border
 %endmacro
+
+%macro m_pm_scr13_draw_line 3
+    mov ax, (%1)
+    mov bx, (%2)
+    mov dl, (%3)
+    call pm_scr13_draw_line
+%endmacro

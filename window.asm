@@ -72,7 +72,7 @@ win_main:
         cmp byte [win_current_open_window], 0x03
         je .window_welcome
         cmp byte [win_current_open_window], 0x04
-        je .window_pm_not_available
+        je pm_enter
         cmp byte [win_current_open_window], 0x05
         je .window_credits
         jmp .desktop
