@@ -298,7 +298,7 @@ img_shutdown_16: ; 0xFF, 0x0C
 %include "pm/main.asm"
 
 global_end:
-times 512 * 32 - ($-$$) db 0
+times 512 * 64 - ($-$$) db 0
 global_absolute_end:
 
 ; THE TOTAL FLOPPY SIZE IS 1.44 MB OR 1474560 BYTES (2880 SECTORS)
