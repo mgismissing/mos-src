@@ -9,8 +9,8 @@ pm_win_main:
         call pm_win_draw_background
 
         ; DESKTOP APP "SHUTDOWN" ICON
-        mov ax, (9 + 6) + (SCR13_WIDTH * (5 + (32 * 0)))
-        mov bx, pm_winico_turn_off_computer_full_16
+        mov eax, (9 + 6) + (SCR13_WIDTH * (5 + (32 * 0)))
+        mov ebx, pm_winico_turn_off_computer_full_16
         call pm_scr13_draw_img_16x16
 
         ; DESKTOP APP "SHUTDOWN" TEXT
@@ -41,14 +41,14 @@ pm_win_main:
         mov dl, 0x0F
         call pm_scr13_print_string
 
-        ; DESKTOP APP "32-BIT MODE" ICON
+        ; DESKTOP APP "64-BIT MODE" ICON
         mov ax, (9 + 6) + (SCR13_WIDTH * (5 + (32 * 3)))
         mov bx, pm_winico_chip_16
         call pm_scr13_draw_img_16x16
 
-        ; DESKTOP APP "32-BIT MODE" TEXT
+        ; DESKTOP APP "64-BIT MODE" TEXT
         mov ax, 11 + (SCR13_WIDTH * (5 + 16 + 2 + (32 * 3)))
-        mov bx, pm_winstr_32_bit_mode_icon_name
+        mov bx, pm_winstr_64_bit_mode_icon_name
         mov dl, 0x0F
         call pm_scr13_print_string
 
@@ -74,7 +74,7 @@ pm_win_main:
         je pm_enter
         cmp byte [pm_win_current_open_window], 0x05
         je .window_credits
-        jmp .desktop
+        jmp .window_welcome
     .window_welcome:
         ; WINDOW
         m_pm_win_draw_window 60, 20, 200, 160, pm_winstr_welcome_window_title
@@ -95,15 +95,15 @@ pm_win_main:
         call pm_scr13_draw_vertical_line
 
         ; WINDOW IMAGE BACKGROUND
-        mov ax, 66 + (SCR13_WIDTH * 37)
-        mov bx, 40
-        mov cx, 137
+        mov eax, 66 + (SCR13_WIDTH * 37)
+        mov ebx, 40
+        mov ecx, 137
         mov dl, 0x94
         call pm_scr13_draw_rect
 
         ; WINDOW IMAGE
-        mov ax, 70 + (SCR13_WIDTH * 40)
-        mov bx, pm_winico_disc_drive_32
+        mov eax, 70 + (SCR13_WIDTH * 40)
+        mov ebx, pm_winico_disc_drive_32
         call pm_scr13_draw_img_32x32
 
         ; WINDOW TEXT
@@ -111,14 +111,23 @@ pm_win_main:
         mov ax, 110 + (SCR13_WIDTH * (36 + (8 * 0)))
         mov bx, pm_winstr_welcome_window_desc1
         call pm_scr13_print_string
-        mov ax, 110 + (SCR13_WIDTH * (36 + (8 * 2)))
+        mov ax, 110 + (SCR13_WIDTH * (36 + (8 * 1)))
         mov bx, pm_winstr_welcome_window_desc2
         call pm_scr13_print_string
-        mov ax, 110 + (SCR13_WIDTH * (36 + (8 * 3)))
+        mov ax, 110 + (SCR13_WIDTH * (36 + (8 * 2)))
         mov bx, pm_winstr_welcome_window_desc3
         call pm_scr13_print_string
         mov ax, 110 + (SCR13_WIDTH * (36 + (8 * 4)))
         mov bx, pm_winstr_welcome_window_desc4
+        call pm_scr13_print_string
+        mov ax, 110 + (SCR13_WIDTH * (36 + (8 * 5)))
+        mov bx, pm_winstr_welcome_window_desc5
+        call pm_scr13_print_string
+        mov ax, 110 + (SCR13_WIDTH * (36 + (8 * 6)))
+        mov bx, pm_winstr_welcome_window_desc6
+        call pm_scr13_print_string
+        mov ax, 110 + (SCR13_WIDTH * (36 + (8 * 7)))
+        mov bx, pm_winstr_welcome_window_desc7
         call pm_scr13_print_string
 
         jmp .window_welcome_loop
@@ -132,40 +141,7 @@ pm_win_main:
         call .loop
         m_pm_win_draw_pressed_button 198, 156, 54, 16, pm_winstr_button_ok
         m_pm_win_draw_dotted_border 201, 159, 47, 9, 0x00
-        call delay_50ms
-        mov byte [pm_win_current_open_window], 0x00
-        jmp .start
-    
-    .window_pm_not_available:
-        ; WINDOW
-        m_pm_win_draw_window 60, 60, 200, 80, pm_winstr_pm_not_available_window_title
-
-        ; WINDOW IMAGE
-        mov ax, 70 + (SCR13_WIDTH * 80)
-        mov bx, pm_winico_error_32
-        call pm_scr13_draw_img_32x32
-
-        ; WINDOW TEXT
-        mov dl, 0x00
-        mov ax, 110 + (SCR13_WIDTH * (88 + (8 * 0)))
-        mov bx, pm_winstr_pm_not_available_window_desc1
-        call pm_scr13_print_string
-        mov ax, 110 + (SCR13_WIDTH * (88 + (8 * 1)))
-        mov bx, pm_winstr_pm_not_available_window_desc2
-        call pm_scr13_print_string
-
-        jmp .window_pm_not_available_loop
-
-    .window_pm_not_available_loop:
-        ; WINDOW BUTTONS
-        m_pm_win_draw_button 198, 116, 54, 16, pm_winstr_button_ok
-        m_pm_win_draw_dotted_border 201, 119, 47, 9, 0x00
-
-        ; BUTTON CHECKER
-        call .loop
-        m_pm_win_draw_pressed_button 198, 116, 54, 16, pm_winstr_button_ok
-        m_pm_win_draw_dotted_border 201, 119, 47, 9, 0x00
-        call delay_50ms
+        jmp $
         mov byte [pm_win_current_open_window], 0x00
         jmp .start
     .window_credits:
@@ -430,8 +406,8 @@ pm_win_draw_window:                                ; pm_win_draw_window(ax > Pos
 
     ; WINDOW TITLE
     pusha
-    add ax, (SCR13_WIDTH * 4) + 5
-    mov bx, [pm_win_draw_window_title_str_pt]
+    add eax, (SCR13_WIDTH * 4) + 5
+    mov ebx, [pm_win_draw_window_title_str_pt]
     mov dl, 0x1F
     call pm_scr13_print_string
     popa
@@ -761,10 +737,10 @@ pm_winvar_mouse_x: dw 0x0000
 pm_winvar_mouse_y: dw 0x0000
 
 pm_winstr_test_string: db 'TEST STRING', 0
-pm_winstr_current_mode_16: db 'CURRENTLY IN 16-BIT MODE. TOTAL AVAILABLE SPACE IS 64KB.', 0
+pm_winstr_current_mode_16: db 'CURRENTLY IN 32-BIT MODE. TOTAL AVAILABLE SPACE IS 4GB.', 0
 
-pm_win_draw_window_title_str_pt: dw 0x0000
-pm_win_draw_button_text_str_pt: dw 0x0000
+pm_win_draw_window_title_str_pt: dd 0x00000000
+pm_win_draw_button_text_str_pt: dd 0x00000000
 
 pm_win_current_open_window: db 0x00
 pm_win_current_selection: db 0x00
@@ -784,15 +760,14 @@ pm_winstr_button_back:   db '   BACK    ', 0
 pm_winstr_button_abort:  db '   ABORT   ', 0
 
 pm_winstr_welcome_icon_name: db 'WELCOME', 0
-pm_winstr_welcome_window_title: db 'WELCOME', 0
-pm_winstr_welcome_window_desc1: db 'WELCOME TO MAGNESIUMOS!              ', 0
-pm_winstr_welcome_window_desc2: db 'USE THE ARROW KEYS TO NAVIGATE       ', 0
-pm_winstr_welcome_window_desc3: db 'BETWEEN BUTTONS AND ICONS AND PRESS  ', 0
-pm_winstr_welcome_window_desc4: db 'ENTER TO CONFIRM YOUR SELECTION.     ', 0
-
-pm_winstr_pm_not_available_window_title: db 'UNAVAILABLE', 0
-pm_winstr_pm_not_available_window_desc1: db '32-BIT MODE IS NOT AVAILABLE IN THIS', 0
-pm_winstr_pm_not_available_window_desc2: db 'VERSION.', 0
+pm_winstr_welcome_window_title: db 'WELCOME TO 32-BIT MODE', 0
+pm_winstr_welcome_window_desc1: db 'YOU JUST MADE THE JUMP TO 32-BIT     ', 0
+pm_winstr_welcome_window_desc2: db 'MODE! SADLY, THINGS HERE AREN', 0x27, 'T AS   ', 0
+pm_winstr_welcome_window_desc3: db 'EASY AS 16-BIT MODE...               ', 0
+pm_winstr_welcome_window_desc4: db 'YOU MAY HAVE ALREADY NOTICED, BUT    ', 0
+pm_winstr_welcome_window_desc5: db 'THERE', 0x27, 'S NO KEYBOARD DRIVER. I', 0x27, 'M GOING', 0
+pm_winstr_welcome_window_desc6: db 'TO BE ADDING IT IN THE NEXT UPDATE.  ', 0
+pm_winstr_welcome_window_desc7: db 'UNTIL THEN, ENJOY THIS LITTLE DEMO.  ', 0
 
 pm_winstr_credits_icon_name: db 'CREDITS', 0
 pm_winstr_credits_title: db 'CREDITS', 0
@@ -805,7 +780,7 @@ pm_winstr_credits_desc6: db 'WIKI.OSDEV.ORG', 0
 pm_winstr_credits_desc7: db 'STACKOVERFLOW.COM', 0
 pm_winstr_credits_desc8: db 'WIKIPEDIA.ORG', 0
 
-pm_winstr_32_bit_mode_icon_name: db '32-BIT', 0
+pm_winstr_64_bit_mode_icon_name: db '64-BIT', 0
 
 pm_winico_constructor_32:
     db 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x6C, 0x6C, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF

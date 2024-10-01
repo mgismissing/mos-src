@@ -439,16 +439,22 @@ scr13_font__space:
     db 0b00000000
     db 0b00000000
 scr13_font__exclamation_mark:
-    db 0b00001000
-    db 0b10001000
-    db 0b10000000
-    db 0b10000000
+    db 0b00000100
+    db 0b01000100
+    db 0b01000000
+    db 0b01000000
 scr13_font__double_quotes:
-    db 0b10101010
+    db 0b00001010
+    db 0b10100000
     db 0b00000000
     db 0b00000000
+times (0x27 - '"' - 1) * 4 db 0 ; 0x27 = '
+scr13_font__single_quote:
+    db 0b00000100
+    db 0b01000000
     db 0b00000000
-times (',' - '"' - 1) * 4 db 0
+    db 0b00000000
+times (',' - 0x27 - 1) * 4 db 0 ; 0x27 = '
 scr13_font__comma:
     db 0b00000000
     db 0b00000000
