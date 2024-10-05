@@ -1,1 +1,6 @@
+binutils-gdb/*
+gcc/*
+build-binutils/*
+build-gcc/*
 cc/*
+obj/*

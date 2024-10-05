@@ -21,5 +21,5 @@ gdt_descriptor:
     dw gdt_end - gdt_start - 1          ; Size of the GDT
     dd gdt_start
 
-GDT_SEGMENTC equ gdt_code - gdt_start
-GDT_SEGMENTD equ gdt_data - gdt_start
+GDT_SEGMENTC    equ gdt_code - gdt_start
+GDT_SEGMENTD    equ gdt_data - gdt_start

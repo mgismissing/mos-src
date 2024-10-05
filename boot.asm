@@ -17,10 +17,6 @@ SCR13_WIDTH_MIDDLE    equ  0x00A0
 SCR13_HEIGHT_MIDDLE   equ  0x7D00
 
 absolute_start:
-jmp short start
-
-%include "lib16/bpb.asm"
-
 start:
 mov ax, 0x0003
 int 0x10
@@ -57,7 +53,7 @@ mov bx, boot_load_wait
 call boot_scr_print_string
 
 call kb_waitForKey
-jmp cmd_start
+jmp pm_enter; only for debug, jmp cmd_start is the normal one
 
 boot_load_error:
 mov ax, 0x0002
@@ -295,10 +291,8 @@ img_shutdown_16: ; 0xFF, 0x0C
     db 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
 
 %include "lib16/pm.asm"
-%include "pm/main.asm"
 
 global_end:
-times 512 * 64 - ($-$$) db 0
-global_absolute_end:
+main_start:
 
 ; THE TOTAL FLOPPY SIZE IS 1.44 MB OR 1474560 BYTES (2880 SECTORS)

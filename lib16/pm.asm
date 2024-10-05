@@ -22,4 +22,4 @@ pm_start:
     mov ebp, 0x00007C00
     mov esp, ebp
 
-    call pm_main
+    jmp main_start

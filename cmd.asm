@@ -12,19 +12,19 @@ cmd_main:
     m_scr_cursor_print_string cmdstr_welcome1, 0x0F
     m_scr_cursor_print_crlf
     mov bl, 0x0E
-    mov ax, global_absolute_end - global_end
+    mov ax, global_end
     mov al, ah
     call scr_cursor_print_hex
     mov bl, 0x0E
-    mov ax, global_absolute_end - global_end
+    mov ax, global_end
     call scr_cursor_print_hex
     m_scr_cursor_print_char '/', 0x0F 
     mov bl, 0x0E
-    mov ax, global_absolute_end
+    mov ax, 0xFFFF
     mov al, ah
     call scr_cursor_print_hex
     mov bl, 0x0E
-    mov ax, global_absolute_end
+    mov ax, 0xFFFF
     call scr_cursor_print_hex
     m_scr_cursor_print_string cmdstr_welcome2, 0x0F
     m_scr_cursor_print_crlf
@@ -221,8 +221,8 @@ cmd_global_return: ret
 cmdvar_command: times 64 db 0
 cmdvar_command_end: db 0
 
-cmdstr_welcome1: db 'MagnesiumOS v0.5 Command Prompt', 0
-cmdstr_welcome2: db ' Bytes Free', 0
+cmdstr_welcome1: db 'MagnesiumOS v0.8 Command Prompt', 0
+cmdstr_welcome2: db ' Bytes Used', 0
 cmdstr_welcome3: db 'Made with ', 0x03, ' by Gabriele Graziani', 0
 cmdstr_welcome4: db 'Type "HELP" for a list of commands.', 0
 

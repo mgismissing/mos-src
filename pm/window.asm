@@ -1,3 +1,5 @@
+global pm_win_start
+
 pm_win_start:
     mov byte [pm_win_current_open_window], 0x03
     mov byte [pm_win_current_selection], 0x03
@@ -65,17 +67,24 @@ pm_win_main:
 
         ; CURRENT WINDOW SHOWER
         cmp byte [pm_win_current_open_window], 0x01
-        je cmd_run_shutdown
+        je .start
         cmp byte [pm_win_current_open_window], 0x02
-        je cmd_start
+        je .start
         cmp byte [pm_win_current_open_window], 0x03
         je .window_welcome
         cmp byte [pm_win_current_open_window], 0x04
-        je pm_enter
+        je .start
         cmp byte [pm_win_current_open_window], 0x05
         je .window_credits
         jmp .window_welcome
     .window_welcome:
+        ; DEBUG: KB LEDs
+        mov al, 0b00000111
+        call pm_kb_set_leds
+
+        ; DEBUG: KB ENABLE
+        call pm_kb_enable
+
         ; WINDOW
         m_pm_win_draw_window 60, 20, 200, 160, pm_winstr_welcome_window_title
 
@@ -198,7 +207,7 @@ pm_win_main:
         call .loop
         m_pm_win_draw_pressed_button 198, 156, 54, 16, pm_winstr_button_ok
         m_pm_win_draw_dotted_border 201, 159, 47, 9, 0x00
-        call delay_50ms
+        ;call delay_50ms
         mov byte [pm_win_current_open_window], 0x00
         jmp .start
     

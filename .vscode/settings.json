@@ -1,0 +1,17 @@
+{
+    "files.associations": {
+        "*.NPE": "python",
+        "*.ASM": "asm-intel-x86-generic",
+        "stdint.h": "c",
+        "stdlib.h": "c",
+        "*.inc": "cpp",
+        "asmspecInvalid.C": "cpp",
+        "*.tcc": "c",
+        "internet": "cpp",
+        "vga.h": "c",
+        "interrupt.h": "c",
+        "stdio.h": "c",
+        "cstdint": "c",
+        "regex": "c"
+    }
+}

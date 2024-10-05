@@ -440,3 +440,229 @@ pm_scr13_print_char_current_pixel_mask: dw 0x0000
 pm_scr13_print_char_current_pixel: dw 0x0000
 pm_scr13_print_char_color: db 0x00
 pm_scr13_pixel_set_if_ax: dw 0x0000
+
+scr13_font_start:
+scr13_font__space:
+    db 0b00000000
+    db 0b00000000
+    db 0b00000000
+    db 0b00000000
+scr13_font__exclamation_mark:
+    db 0b00000100
+    db 0b01000100
+    db 0b01000000
+    db 0b01000000
+scr13_font__double_quotes:
+    db 0b00001010
+    db 0b10100000
+    db 0b00000000
+    db 0b00000000
+times (0x27 - '"' - 1) * 4 db 0 ; 0x27 = '
+scr13_font__single_quote:
+    db 0b00000100
+    db 0b01000000
+    db 0b00000000
+    db 0b00000000
+times (',' - 0x27 - 1) * 4 db 0 ; 0x27 = '
+scr13_font__comma:
+    db 0b00000000
+    db 0b00000000
+    db 0b00000000
+    db 0b01001000
+scr13_font__hyphen:
+    db 0b00000000
+    db 0b00001110
+    db 0b00000000
+    db 0b00000000
+scr13_font__dot:
+    db 0b00000000
+    db 0b00000000
+    db 0b00000000
+    db 0b01000000
+times ('0' - '.' - 1) * 4 db 0
+scr13_font__0:
+    db 0b00001100
+    db 0b10101010
+    db 0b10101010
+    db 0b01100000
+scr13_font__1:
+    db 0b00000100
+    db 0b11000100
+    db 0b01000100
+    db 0b11100000
+scr13_font__2:
+    db 0b00001100
+    db 0b00100010
+    db 0b01001000
+    db 0b11100000
+scr13_font__3:
+    db 0b00001100
+    db 0b00100100
+    db 0b00100010
+    db 0b11000000
+scr13_font__4:
+    db 0b00000010
+    db 0b10101010
+    db 0b11100010
+    db 0b00100000
+scr13_font__5:
+    db 0b00001110
+    db 0b10001100
+    db 0b00100010
+    db 0b11000000
+scr13_font__6:
+    db 0b00000110
+    db 0b10001100
+    db 0b10101010
+    db 0b01000000
+scr13_font__7:
+    db 0b00001110
+    db 0b00100100
+    db 0b01000100
+    db 0b01000000
+scr13_font__8:
+    db 0b00000100
+    db 0b10100100
+    db 0b10101010
+    db 0b01000000
+scr13_font__9:
+    db 0b00000100
+    db 0b10101010
+    db 0b01100010
+    db 0b01000000
+times ('A' - '9' - 1) * 4 db 0
+scr13_font__A:
+    db 0b00000100
+    db 0b10101010
+    db 0b11101010
+    db 0b10100000
+scr13_font__B:
+    db 0b00001100
+    db 0b10101100
+    db 0b10101010
+    db 0b11000000
+scr13_font__C:
+    db 0b00000110
+    db 0b10001000
+    db 0b10001000
+    db 0b01100000
+scr13_font__D:
+    db 0b00001100
+    db 0b10101010
+    db 0b10101010
+    db 0b11000000
+scr13_font__E:
+    db 0b00001110
+    db 0b10001100
+    db 0b10001000
+    db 0b11100000
+scr13_font__F:
+    db 0b00001110
+    db 0b10001100
+    db 0b10001000
+    db 0b10000000
+scr13_font__G:
+    db 0b00000110
+    db 0b10001000
+    db 0b10101010
+    db 0b01100000
+scr13_font__H:
+    db 0b00001010
+    db 0b10101110
+    db 0b10101010
+    db 0b10100000
+scr13_font__I:
+    db 0b00001110
+    db 0b01000100
+    db 0b01000100
+    db 0b11100000
+scr13_font__J:
+    db 0b00001110
+    db 0b00100010
+    db 0b00100010
+    db 0b11000000
+scr13_font__K:
+    db 0b00001010
+    db 0b10101100
+    db 0b10101010
+    db 0b10100000
+scr13_font__L:
+    db 0b00001000
+    db 0b10001000
+    db 0b10001000
+    db 0b11100000
+scr13_font__M:
+    db 0b00001010
+    db 0b11101010
+    db 0b10101010
+    db 0b10100000
+scr13_font__N:
+    db 0b00001100
+    db 0b10101010
+    db 0b10101010
+    db 0b10100000
+scr13_font__O:
+    db 0b00000100
+    db 0b10101010
+    db 0b10101010
+    db 0b01000000
+scr13_font__P:
+    db 0b00001100
+    db 0b10101100
+    db 0b10001000
+    db 0b10000000
+scr13_font__Q:
+    db 0b00000100
+    db 0b10101010
+    db 0b10100100
+    db 0b00100000
+scr13_font__R:
+    db 0b00001100
+    db 0b10101010
+    db 0b11001010
+    db 0b10100000
+scr13_font__S:
+    db 0b00000110
+    db 0b10000100
+    db 0b00100010
+    db 0b11000000
+scr13_font__T:
+    db 0b00001110
+    db 0b01000100
+    db 0b01000100
+    db 0b01000000
+scr13_font__U:
+    db 0b00001010
+    db 0b10101010
+    db 0b10101010
+    db 0b01100000
+scr13_font__V:
+    db 0b00001010
+    db 0b10101010
+    db 0b10100100
+    db 0b01000000
+scr13_font__W:
+    db 0b00001010
+    db 0b10101010
+    db 0b10101110
+    db 0b10100000
+scr13_font__X:
+    db 0b00001010
+    db 0b10100100
+    db 0b01001010
+    db 0b10100000
+scr13_font__Y:
+    db 0b00001010
+    db 0b10100100
+    db 0b01000100
+    db 0b01000000
+scr13_font__Z:
+    db 0b00001110
+    db 0b00100100
+    db 0b01001000
+    db 0b11100000
+scr13_font__block:
+    db 0b11111111
+    db 0b11111111
+    db 0b11111111
+    db 0b11111111
