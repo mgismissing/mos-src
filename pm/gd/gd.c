@@ -99,7 +99,7 @@ bool gd_is_player_touching_wall(uint16_t plr_y) {
     return (m13_get_pixel_color(m13_coords_to_index(49, plr_y + 7)) != 0x36);
 }
 
-uint8_t gd_main() {
+uint8_t gd_game() {
     uint16_t lvl_x = 0;
     uint16_t plr_y = 168;
     uint16_t plr_velocity_y = 10;
@@ -113,6 +113,7 @@ uint8_t gd_main() {
         // clear screen
         m13_draw_rect(0, 320, 176, 0x36, 0x36);
         m13_draw_rect(m13_coords_to_index(0, 176), 320, 24, 0x01, 0x01);
+        m13_printf(m13_coords_to_index(2, 190), "Press ESC to exit", 0x0F, 0xFF, 1, 0);
 
         // draw map
         for (uint16_t y = 0; y < 8; y++) {
@@ -141,6 +142,10 @@ uint8_t gd_main() {
             plr_velocity_y = 18;
         }
 
+        if (kb_is_scancode_pressed(0x01)) {
+            return 0;
+        }
+
         while (game_ticks >= 18) {
             lvl_x += 4;
             plr_y -= (plr_velocity_y - plr_gravity);
@@ -161,4 +166,13 @@ uint8_t gd_main() {
             return m13_get_pixel_color(m13_coords_to_index(49, plr_y + 7)) != 0x0A;
         }
     }
+}
+
+uint8_t gd_main() {
+    uint8_t exit_code = 1;
+    while (exit_code != 0) {
+        exit_code = gd_game();
+        timer_sleep(500);
+    }
+    return 0;
 }

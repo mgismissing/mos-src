@@ -30,23 +30,18 @@ uint8_t img_icon_unknown[] = {
 };
 
 void desktop(uint8_t selection, bool open) {
-    if (open == 0) {
-        m13_draw_rect(0, 320, 200, 0x12, 0x12);
-        m13_draw_desktop_icon(m13_coords_to_index(8 + (48 * 0), 8), "SHUTDOWN", 0, img_icon_unknown, 0x0F, 0xFF, 0x13, 0x15, 1, default_font, selection == 0);
-        m13_draw_desktop_icon(m13_coords_to_index(8 + (48 * 1), 8), "GDASH", 6, img_icon_unknown, 0x0F, 0xFF, 0x13, 0x15, 1, default_font, selection == 1);
-    } else {
+    if (open == 1) {
         switch (selection) {
             case 0:
                 break;
             case 1:
-                exit_code = 1;
-                while (exit_code != 0) {
-                    exit_code = gd_main();
-                    timer_sleep(500);
-                }
+                gd_main();
                 break;
         }
     }
+    m13_draw_rect(0, 320, 200, 0x12, 0x12);
+    m13_draw_desktop_icon(m13_coords_to_index(8 + (48 * 0), 8), "SHUTDOWN", 0, img_icon_unknown, 0x0F, 0xFF, 0x13, 0x15, 1, default_font, selection == 0);
+    m13_draw_desktop_icon(m13_coords_to_index(8 + (48 * 1), 8), "GDASH", 6, img_icon_unknown, 0x0F, 0xFF, 0x13, 0x15, 1, default_font, selection == 1);
     return;
 }
 
