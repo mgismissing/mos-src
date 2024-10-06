@@ -17,8 +17,13 @@ typedef unsigned short coords_index;
 
 coords_index m13_coords_to_index(uint16_t x, uint16_t y);
 void m13_draw_pixel(coords_index index, uint8_t color);
+uint8_t m13_get_pixel_color(coords_index index);
 void m13_draw_line_h(coords_index start_pos, uint16_t length, uint8_t color);
 void m13_draw_line_v(coords_index start_pos, uint16_t length, uint8_t color);
-void m13_draw_rect(coords_index start_pos, uint16_t width, uint16_t height, uint8_t color);
+void m13_draw_rect(coords_index start_pos, uint16_t width, uint16_t height, uint8_t color, uint8_t border_color);
+void m13_draw_img(coords_index start_pos, uint16_t width, uint16_t height, uint8_t image[], uint8_t zoom);
 
-void m13_printf(coords_index start_pos, char *string, uint8_t color);
+void m13_putchar(coords_index start_pos, char character, uint8_t fore, uint8_t back, uint8_t zoom, uint8_t font);
+void m13_printf(coords_index start_pos, char* string_pt, uint8_t fore, uint8_t back, uint8_t zoom, uint8_t font);
+
+void m13_draw_desktop_icon(coords_index start_pos, char* name, uint16_t name_offset, uint8_t image16x16[], uint8_t text_fore, uint8_t text_back, uint8_t selection_color, uint8_t selection_border, uint8_t zoom, uint8_t font, uint8_t state);

@@ -12,6 +12,7 @@
         "interrupt.h": "c",
         "stdio.h": "c",
         "cstdint": "c",
-        "regex": "c"
+        "regex": "c",
+        "timer.h": "c"
     }
 }

@@ -140,7 +140,9 @@ unsigned char *exception_messages[] = {
 
 void isr_handler(struct InterruptRegisters* regs) {
     if (regs -> int_no < 32) {
-        m13_printf(0, exception_messages[regs -> int_no], 0x0C);
+        m13_draw_rect(m13_coords_to_index(0, 0), 320, 200, 0x0C, 0x0C);
+        m13_printf(m13_coords_to_index(1, 1 + (8 * 0)), "THE COMPUTER TRIPPED.", 0x00, 0x0C, 2, 0);
+        m13_printf(m13_coords_to_index(1, 1 + (8 * 2)), exception_messages[regs -> int_no], 0x00, 0x0C, 1, 0);
         while(1);
     }
 }

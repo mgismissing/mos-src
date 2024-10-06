@@ -1,0 +1,1 @@
+uint8_t gd_main();

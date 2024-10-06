@@ -170,3 +170,6 @@ irq_common_stub:
     add esp, 8
     sti
     iret
+
+%include "lib32/fonts/0.asm"
+%include "lib32/fonts/1.asm"

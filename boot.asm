@@ -22,7 +22,7 @@ mov ax, 0x0003
 int 0x10
 
 mov ax, 0x0000
-mov al, 64
+mov al, 0x7F
 mov bx, 0x0000
 mov es, bx
 mov bx, 0x7E00
@@ -293,6 +293,7 @@ img_shutdown_16: ; 0xFF, 0x0C
 %include "lib16/pm.asm"
 
 global_end:
+times (512 * 66) - ($-$$) db 0
 main_start:
 
 ; THE TOTAL FLOPPY SIZE IS 1.44 MB OR 1474560 BYTES (2880 SECTORS)

@@ -448,7 +448,12 @@ scr13_font__double_quotes:
     db 0b10100000
     db 0b00000000
     db 0b00000000
-times (0x27 - '"' - 1) * 4 db 0 ; 0x27 = '
+scr13_font__hashtag:
+    db 0b00001010
+    db 0b10101110
+    db 0b10101110
+    db 0b10100000
+times (0x27 - '#' - 1) * 4 db 0 ; 0x27 = '
 scr13_font__single_quote:
     db 0b00000100
     db 0b01000000
@@ -521,7 +526,41 @@ scr13_font__9:
     db 0b10101010
     db 0b01100010
     db 0b01000000
-times ('A' - '9' - 1) * 4 db 0
+scr13_font__colon:
+    db 0b00000000
+    db 0b00000100
+    db 0b00000100
+    db 0b00000000
+scr13_font__semicolon:
+    db 0b00000000
+    db 0b00000100
+    db 0b00000100
+    db 0b10000000
+scr13_font__less_than:
+    db 0b00000000
+    db 0b00100100
+    db 0b10000100
+    db 0b00100000
+scr13_font__equal:
+    db 0b00000000
+    db 0b00001110
+    db 0b00001110
+    db 0b00000000
+scr13_font__greater_than:
+    db 0b00000000
+    db 0b10000100
+    db 0b00100100
+    db 0b10000000
+scr13_font__question_mark:
+    db 0b00000100
+    db 0b10100010
+    db 0b01000000
+    db 0b01000000
+scr13_font__at:
+    db 0b00000100
+    db 0b10101010
+    db 0b11101000
+    db 0b01100000
 scr13_font__A:
     db 0b00000100
     db 0b10101010
@@ -652,8 +691,33 @@ scr13_font__Z:
     db 0b00100100
     db 0b01001000
     db 0b11100000
-scr13_font__block:
-    db 0b11111111
-    db 0b11111111
-    db 0b11111111
-    db 0b11111111
+scr13_font__opening_square_bracket:
+    db 0b00001110
+    db 0b10001000
+    db 0b10001000
+    db 0b11100000
+scr13_font__backslash:
+    db 0b00001000
+    db 0b10000100
+    db 0b01000010
+    db 0b00100000
+scr13_font__closing_square_bracket:
+    db 0b00001110
+    db 0b00100010
+    db 0b00100010
+    db 0b11100000
+scr13_font__circumflex:
+    db 0b00000100
+    db 0b10100000
+    db 0b00000000
+    db 0b00000000
+scr13_font__underscore:
+    db 0b00000000
+    db 0b00000000
+    db 0b00000000
+    db 0b11100000
+scr13_font__blank:
+    db 0b00000000
+    db 0b00000000
+    db 0b00000000
+    db 0b00000000

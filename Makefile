@@ -3,17 +3,20 @@ TOTAL_SECTORS=128
 GCC = cc/bin/i686-elf-gcc
 GCC_FLAGS = -fno-stack-protector -fno-builtin -m32 -g
 LD = cc/bin/i686-elf-ld
-LD_FLAGS = -Ttext 0x1000 --oformat binary
+LD_FLAGS = -Ttext 0x00010000 --oformat binary
 
 all: build
 
 build:
 	nasm -f elf32 pm/main.asm -o obj/main.o
 	wsl $(GCC) $(GCC_FLAGS) -c pm/kernel.c -o obj/kernel.o
+	wsl $(GCC) $(GCC_FLAGS) -c pm/gd/gd.c -o obj/gd/gd.o
 	wsl $(GCC) $(GCC_FLAGS) -c lib32/interrupt.c -o obj/interrupt.o
 	wsl $(GCC) $(GCC_FLAGS) -c lib32/stdio.c -o obj/stdio.o
 	wsl $(GCC) $(GCC_FLAGS) -c lib32/vga.c -o obj/vga.o
-	wsl $(LD) $(LD_FLAGS) obj/main.o obj/kernel.o obj/interrupt.o obj/stdio.o obj/vga.o -o kernel.bin
+	wsl $(GCC) $(GCC_FLAGS) -c lib32/multitask.c -o obj/multitask.o
+	wsl $(GCC) $(GCC_FLAGS) -c lib32/timer.c -o obj/timer.o
+	wsl $(LD) $(LD_FLAGS) obj/main.o obj/kernel.o obj/interrupt.o obj/vga.o obj/timer.o obj/multitask.o obj/stdio.o obj/gd/gd.o -o kernel.bin
 
 	nasm -f bin boot.asm -o boot16.bin
 
@@ -32,11 +35,11 @@ build:
 	copy mos.iso iso\mos.iso
 	del mos.iso
 
-run-qemu: build
+run-qemu:
 	qemu-system-x86_64 -cdrom iso\mos.iso
 
-run-qemu-debug: build
+run-qemu-debug:
 	qemu-system-x86_64 -s -S -cdrom iso\mos.iso
 
-run-vbox: build
+run-vbox:
 	vboxmanage startvm MagnesiumOS
