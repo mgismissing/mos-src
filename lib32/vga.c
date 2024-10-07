@@ -109,4 +109,12 @@ void m13_draw_desktop_icon(coords_index start_pos, char* name, uint16_t name_off
     }
     m13_draw_img(start_pos + m13_coords_to_index(12, 4), 16, 16, image16x16, zoom);
     m13_printf(start_pos + m13_coords_to_index(4, 22) + name_offset, name, text_fore, text_back, zoom, font);
+    return;
+}
+
+void m13_draw_window(coords_index start_pos, uint16_t width, uint16_t height, char* title, uint8_t image8x8[], uint8_t title_fore, uint8_t title_back, uint8_t window_back, uint8_t window_border_color, uint8_t font) {
+    m13_draw_rect(start_pos, width, height, window_back, window_border_color);
+    m13_draw_rect(start_pos, width, 12, title_back, window_border_color);
+    m13_printf(start_pos + m13_coords_to_index(12, 2), title, title_fore, title_back, 1, font);
+    return;
 }

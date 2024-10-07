@@ -1,0 +1,1 @@
+uint8_t notepad_main(coords_index start_pos);

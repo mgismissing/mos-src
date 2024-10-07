@@ -10,13 +10,17 @@ all: build
 build:
 	nasm -f elf32 pm/main.asm -o obj/main.o
 	wsl $(GCC) $(GCC_FLAGS) -c pm/kernel.c -o obj/kernel.o
+	wsl $(GCC) $(GCC_FLAGS) -c pm/notepad/notepad.c -o obj/notepad/notepad.o
+	wsl $(GCC) $(GCC_FLAGS) -c pm/doom/doom.c -o obj/doom/doom.o
 	wsl $(GCC) $(GCC_FLAGS) -c pm/gd/gd.c -o obj/gd/gd.o
+	wsl $(GCC) $(GCC_FLAGS) -c lib32/string.c -o obj/string.o
+	wsl $(GCC) $(GCC_FLAGS) -c lib32/math.c -o obj/math.o
 	wsl $(GCC) $(GCC_FLAGS) -c lib32/interrupt.c -o obj/interrupt.o
 	wsl $(GCC) $(GCC_FLAGS) -c lib32/stdio.c -o obj/stdio.o
 	wsl $(GCC) $(GCC_FLAGS) -c lib32/vga.c -o obj/vga.o
 	wsl $(GCC) $(GCC_FLAGS) -c lib32/multitask.c -o obj/multitask.o
 	wsl $(GCC) $(GCC_FLAGS) -c lib32/timer.c -o obj/timer.o
-	wsl $(LD) $(LD_FLAGS) obj/main.o obj/kernel.o obj/interrupt.o obj/vga.o obj/timer.o obj/multitask.o obj/stdio.o obj/gd/gd.o -o kernel.bin
+	wsl $(LD) $(LD_FLAGS) obj/main.o obj/kernel.o obj/string.o obj/interrupt.o obj/vga.o obj/timer.o obj/multitask.o obj/stdio.o obj/math.o obj/notepad/notepad.o obj/doom/doom.o obj/gd/gd.o -o kernel.bin
 
 	nasm -f bin boot.asm -o boot16.bin
 

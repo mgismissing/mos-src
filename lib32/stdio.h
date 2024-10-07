@@ -81,6 +81,8 @@ bool kb_get_caps_state();
 
 uint8_t kb_wait_for_scancode();
 
+void kb_clear_scancodes_press_states();
+
 void kb_handler(struct InterruptRegisters *regs);
 void kb_init();
 

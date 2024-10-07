@@ -3,8 +3,11 @@
 #include "../lib32/stdio.h"
 #include "../lib32/interrupt.h"
 #include "../lib32/timer.h"
+#include "../lib32/string.h"
 
+#include "notepad/notepad.h"
 #include "gd/gd.h"
+#include "doom/doom.h"
 
 uint8_t exit_code = 0;
 
@@ -29,19 +32,40 @@ uint8_t img_icon_unknown[] = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 
+uint16_t cmd_run_command(char* command) {
+    if (!strcmp("NOTEPAD", command)) {return notepad_main(0);};
+    if (!strcmp("GDASH", command)) {return gd_main();};
+    if (!strcmp("DOOM", command)) {return doom_main();};
+    return 0xFFFF;
+}
+
+void ctrl_alt_del() {
+    while(1);
+    return;
+}
+
 void desktop(uint8_t selection, bool open) {
     if (open == 1) {
         switch (selection) {
             case 0:
+                cmd_run_command("SHUTDOWN");
                 break;
             case 1:
-                gd_main();
+                cmd_run_command("NOTEPAD");
+                break;
+            case 2:
+                cmd_run_command("GDASH");
+                break;
+            case 3:
+                cmd_run_command("DOOM");
                 break;
         }
     }
     m13_draw_rect(0, 320, 200, 0x12, 0x12);
     m13_draw_desktop_icon(m13_coords_to_index(8 + (48 * 0), 8), "SHUTDOWN", 0, img_icon_unknown, 0x0F, 0xFF, 0x13, 0x15, 1, default_font, selection == 0);
-    m13_draw_desktop_icon(m13_coords_to_index(8 + (48 * 1), 8), "GDASH", 6, img_icon_unknown, 0x0F, 0xFF, 0x13, 0x15, 1, default_font, selection == 1);
+    m13_draw_desktop_icon(m13_coords_to_index(8 + (48 * 1), 8), "NOTEPAD", 2, img_icon_unknown, 0x0F, 0xFF, 0x13, 0x15, 1, default_font, selection == 1);
+    m13_draw_desktop_icon(m13_coords_to_index(8 + (48 * 3), 8), "GDASH", 6, img_icon_unknown, 0x0F, 0xFF, 0x13, 0x15, 1, default_font, selection == 2);
+    m13_draw_desktop_icon(m13_coords_to_index(8 + (48 * 4), 8), "DOOM", 8, img_icon_unknown, 0x0F, 0xFF, 0x13, 0x15, 1, default_font, selection == 3);
     return;
 }
 
@@ -51,10 +75,15 @@ void kernel32() {
     kb_init();
 
     uint8_t curr_selection = 0;
-    uint8_t max_selection = 1;
+    uint8_t max_selection = 2;
     uint8_t scancode = 0;
     while (1) {
-        desktop(curr_selection, kb_is_scancode_pressed(0x1C /* enter */) == 1);
+        if (kb_is_scancode_pressed(0x1C /* enter */) == 1) {
+            while (kb_is_scancode_pressed(scancode) == 1);
+            desktop(curr_selection, 1);
+        } else {
+            desktop(curr_selection, 0);
+        }
         while (kb_is_scancode_pressed(scancode) == 1);
         scancode = kb_wait_for_scancode();
         if ((scancode == 0x4B /* left */ || scancode == 0x48 /* up */) && curr_selection > 0) {
@@ -62,6 +91,11 @@ void kernel32() {
         }
         if ((scancode == 0x4D /* right */ || scancode == 0x50 /* down */) && curr_selection < max_selection) {
             curr_selection++;
+        }
+
+        // Ctrl+Alt+Del
+        if (kb_is_scancode_pressed(0x1D) && kb_is_scancode_pressed(0x38) && kb_is_scancode_pressed(0x53)) {
+            ctrl_alt_del();
         }
     }
 

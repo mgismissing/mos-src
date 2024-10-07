@@ -13,6 +13,10 @@
         "stdio.h": "c",
         "cstdint": "c",
         "regex": "c",
-        "timer.h": "c"
+        "timer.h": "c",
+        "kylox.h": "c",
+        "doom.h": "c",
+        "string.h": "c",
+        "notepad.h": "c"
     }
 }

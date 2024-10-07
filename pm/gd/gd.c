@@ -92,11 +92,11 @@ uint8_t level[] = {
 };
 
 bool gd_is_player_touching_ground(uint16_t plr_y) {
-    return (plr_y >= 168) || (m13_get_pixel_color(m13_coords_to_index(48, plr_y + 8)) != 0x36);
+    return (plr_y >= 168) || (m13_get_pixel_color(m13_coords_to_index(63, plr_y + 8)) != 0x36) || (m13_get_pixel_color(m13_coords_to_index(80, plr_y + 8)) != 0x36);
 }
 
 bool gd_is_player_touching_wall(uint16_t plr_y) {
-    return (m13_get_pixel_color(m13_coords_to_index(49, plr_y + 7)) != 0x36);
+    return (m13_get_pixel_color(m13_coords_to_index(81, plr_y + 7)) != 0x36);
 }
 
 uint8_t gd_game() {
@@ -133,7 +133,7 @@ uint8_t gd_game() {
         }
 
         // draw player
-        m13_draw_img(m13_coords_to_index(32, plr_y - 8), 16, 16, img_player, 1);
+        m13_draw_img(m13_coords_to_index(64, plr_y - 8), 16, 16, img_player, 1);
 
         // game logic
         game_ticks += timer_get_current_ticks() - old_ticks;
@@ -163,7 +163,7 @@ uint8_t gd_game() {
         }
 
         if (gd_is_player_touching_wall(plr_y)) {
-            return m13_get_pixel_color(m13_coords_to_index(49, plr_y + 7)) != 0x0A;
+            return m13_get_pixel_color(m13_coords_to_index(81, plr_y + 7)) != 0x0A;
         }
     }
 }
@@ -175,4 +175,5 @@ uint8_t gd_main() {
         timer_sleep(500);
     }
     return 0;
+
 }
