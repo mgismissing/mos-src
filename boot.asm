@@ -53,7 +53,7 @@ mov bx, boot_load_wait
 call boot_scr_print_string
 
 call kb_waitForKey
-jmp pm_enter; only for debug, jmp cmd_start is the normal one
+jmp cmd_start;  is the normal one , jmp pm_enter for debug
 
 boot_load_error:
 mov ax, 0x0002

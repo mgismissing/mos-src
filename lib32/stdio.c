@@ -25,42 +25,8 @@ bool kb_keys[256] = {0};
 uint8_t kb_keys_last = 0;
 
 bool kb_kstatus_caps = false;
-
-const uint16_t kb_chars_lowercase_eng[128] = {
-    IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_ESC, '1', '2', '3', '4', '5', '6', '7', '8',
-    '9', '0', '-', '=', '\b', '\t', 'q', 'w', 'e', 'r',
-    't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\n', IO_KB_CHAR_CTRL_L,
-    'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';',
-    '\'', '`', IO_KB_CHAR_SHIFT_L, '\\', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',',
-    '.', '/', IO_KB_CHAR_SHIFT_R, '*', IO_KB_CHAR_ALT, ' ', IO_KB_CHAR_LOCK_CAPS, IO_KB_CHAR_F1, IO_KB_CHAR_F2, IO_KB_CHAR_F3,
-    IO_KB_CHAR_F4, IO_KB_CHAR_F5, IO_KB_CHAR_F6, IO_KB_CHAR_F7, IO_KB_CHAR_F8, IO_KB_CHAR_F9, IO_KB_CHAR_F10, IO_KB_CHAR_LOCK_NUM, IO_KB_CHAR_LOCK_SCROLL,
-    IO_KB_CHAR_HOME, IO_KB_CHAR_ARROW_UP, IO_KB_CHAR_PAGE_UP, '-', IO_KB_CHAR_ARROW_LEFT, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_ARROW_RIGHT,
-    '+', IO_KB_CHAR_END, IO_KB_CHAR_ARROW_DOWN, IO_KB_CHAR_PAGE_DOWN, IO_KB_CHAR_INSERT, IO_KB_CHAR_DELETE, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN,
-    IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_F11, IO_KB_CHAR_F12, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN,
-    IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN,
-    IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN,
-    IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN,
-    IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN,
-    IO_KB_CHAR_UNKNOWN
-};
-
-const uint16_t kb_chars_uppercase_eng[128] = {
-    IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_ESC, '!', '@', '#', '$', '%', '^', '&', '*',
-    '(', ')', '_', '+', '\b', '\t', 'Q', 'W', 'E', 'R',
-    'T', 'Y', 'U', 'I', 'O', 'P', '{', '}', '\n', IO_KB_CHAR_CTRL_L,
-    'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ':',
-    '"', '~', IO_KB_CHAR_SHIFT_L, '|', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '<',
-    '>', '?', IO_KB_CHAR_SHIFT_R, '*', IO_KB_CHAR_ALT, ' ', IO_KB_CHAR_LOCK_CAPS, IO_KB_CHAR_F1, IO_KB_CHAR_F2, IO_KB_CHAR_F3,
-    IO_KB_CHAR_F4, IO_KB_CHAR_F5, IO_KB_CHAR_F6, IO_KB_CHAR_F7, IO_KB_CHAR_F8, IO_KB_CHAR_F9, IO_KB_CHAR_F10, IO_KB_CHAR_LOCK_NUM, IO_KB_CHAR_LOCK_SCROLL,
-    IO_KB_CHAR_HOME, IO_KB_CHAR_ARROW_UP, IO_KB_CHAR_PAGE_UP, '-', IO_KB_CHAR_ARROW_LEFT, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_ARROW_RIGHT,
-    '+', IO_KB_CHAR_END, IO_KB_CHAR_ARROW_DOWN, IO_KB_CHAR_PAGE_DOWN, IO_KB_CHAR_INSERT, IO_KB_CHAR_DELETE, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN,
-    IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_F11, IO_KB_CHAR_F12, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN,
-    IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN,
-    IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN,
-    IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN,
-    IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_UNKNOWN,
-    IO_KB_CHAR_UNKNOWN
-};
+bool kb_kstatus_lock_caps = false;
+bool kb_kstatus_shift = false;
 
 const uint16_t kb_chars_lowercase[128] = {
     IO_KB_CHAR_UNKNOWN, IO_KB_CHAR_ESC, '1', '2', '3', '4', '5', '6', '7', '8',
@@ -156,8 +122,18 @@ void kb_handler(struct InterruptRegisters *regs) {
             break;
 
         case IO_KB_SCANCODE_LOCK_CAPS:
-            kb_kstatus_caps = !(kb_kstatus_caps);
-            break;
+        case IO_KB_SCANCODE_SHIFT_L:
+            kb_kstatus_lock_caps = !(kb_kstatus_caps);
+            if (kb_kstatus_lock_caps == 0 && kb_kstatus_shift == 0) {
+                kb_kstatus_caps = false;
+            } else if (kb_kstatus_lock_caps == 0 && kb_kstatus_shift == 1) {
+                kb_kstatus_caps = true;
+            } else if (kb_kstatus_lock_caps == 1 && kb_kstatus_shift == 0) {
+                kb_kstatus_caps = kb_kstatus_lock_caps;
+            } else if (kb_kstatus_lock_caps == 1 && kb_kstatus_shift == 1) {
+                kb_kstatus_caps = !kb_kstatus_lock_caps;
+            }
+            break;        
     }
 }
 

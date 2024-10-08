@@ -17,6 +17,8 @@
         "kylox.h": "c",
         "doom.h": "c",
         "string.h": "c",
-        "notepad.h": "c"
+        "notepad.h": "c",
+        "pr77550.C": "cpp",
+        "chrono": "c"
     }
 }
