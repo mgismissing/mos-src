@@ -22,7 +22,7 @@ mov ax, 0x0003
 int 0x10
 
 mov ax, 0x0000
-mov al, 0x7F
+mov al, 64
 mov bx, 0x0000
 mov es, bx
 mov bx, 0x7E00
