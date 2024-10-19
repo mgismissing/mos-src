@@ -5,135 +5,121 @@
 #include "../../lib32/math.h"
 #include "doom.h"
 
-#define SW         320
-#define SH         200
-#define SW2        (SW/2)                   //half of screen width
-#define SH2        (SH/2)                   //half of screen height
+#define GAME_SCR_WIDTH  320
+#define GAME_SCR_HEIGHT 200
 
-typedef struct {
-int fr1, fr2;          //frame 1 frame 2, to create constant frame rate
-} time; time T;
+float plr_x = 8;
+float plr_y = 8;
+float plr_a = 0;
 
-typedef struct {
-int w, s, a, d;        //move up, down, left, right
-int sl, sr;            //strafe left, right
-int m;                 //move up, down, look up, down
-} keys; keys K;
+int map_w = 16;
+int map_h = 16;
 
-
-void pixel(int x, int y, int c) {
-    uint8_t color;
-    if(c==0){color = 0x2C;} //Yellow
-    if(c==1){color = 0x74;} //Yellow darker
-    if(c==2){color = 0x30;} //Green
-    if(c==3){color = 0x78;} //Green darker
-    if(c==4){color = 0x34;} //Cyan
-    if(c==5){color = 0x7C;} //Cyan darker
-    if(c==6){color = 0x72;} //brown
-    if(c==7){color = 0xBA;} //brown darker
-    if(c==8){color = 0x7F;} //background
-    m13_draw_pixel(m13_coords_to_index(x, y), color);
-}
-
-void movePlayer() {
-//move up, down, left, right
-    if(K.a ==1 && K.m==0){}
-    if(K.d ==1 && K.m==0){}
-    if(K.w ==1 && K.m==0){}
-    if(K.s ==1 && K.m==0){}
-    //strafe left, right
-    if(K.sr==1){}
-    if(K.sl==1){}
-    //move up, down, look up, look down
-    if(K.a==1 && K.m==1){}
-    if(K.d==1 && K.m==1){}
-    if(K.w==1 && K.m==1){}
-    if(K.s==1 && K.m==1){}
-}
-
-void clearBackground() {
-    int x, y;
-    for(y=0; y < SH; y++) { 
-        for(x=0; x < SW; x++){
-            pixel(x, y, 8);
-        }
-    }
-}
-
-int tick;
-void draw3D() {
-    int x, y, c=0;
-    for(y=0; y < SH2; y++) {
-        for(x=0; x < SW2; x++) {
-            pixel(x, y, c); 
-            c+=1;
-            if (c > 8) {
-                c = 0;
-            }
-        }
-    }
-    //frame rate
-    tick+=1;
-    if (tick > 20) {
-        tick=0;
-    }
-    pixel(SW2, SH2+tick, 0);
-}
-
-void display() {
-    uint32_t old_elapsed_time = timer_get_current_ticks();
-    int x, y;
-    if (T.fr1 - T.fr2 >= 50) {
-        clearBackground();
-        movePlayer();
-        draw3D();
-
-        T.fr2 = T.fr1;
-        //glutSwapBuffers();
-    }
-
-    T.fr1 = timer_get_current_ticks() - old_elapsed_time;
-}
-
-void keysDown(uint8_t key) {
-    if(key=='w') { K.w =1;}
-    if(key=='s') { K.s =1;}
-    if(key=='a') { K.a =1;}
-    if(key=='d') { K.d =1;}
-    if(key=='m') { K.m =1;}
-    if(key==',') { K.sr=1;}
-    if(key=='.') { K.sl=1;}
-    return;
-}
-
-void keysUp(uint8_t key) {
-    if(key=='w') { K.w =0;}
-    if(key=='s') { K.s =0;}
-    if(key=='a') { K.a =0;}
-    if(key=='d') { K.d =0;}
-    if(key=='m') { K.m =0;}
-    if(key==',') { K.sr=0;}
-    if(key=='.') { K.sl=0;}
-    return;
-}
-
-void init() {
-    return;
-}
-
-
+float plr_fov = 3.14159 / 4.0;
+float plr_render_distance = 16.0;
 
 // start point when the app is launched
 uint8_t doom_main() {
-    init();
-    return 0;
+    // Create the map
+    char map[] = {
+        '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#',
+        '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#',
+        '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#',
+        '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#',
+        '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#', ' ', ' ', '#',
+        '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#', ' ', ' ', '#',
+        '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#',
+        '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#',
+        '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#',
+        '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#',
+        '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#',
+        '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#',
+        '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#', '#', '#', '#', '#', '#', '#', '#',
+        '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#',
+        '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#',
+        '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#',
+    };
+
+    uint32_t tp1 = timer_get_current_ticks();
+    uint32_t tp2 = timer_get_current_ticks();
+
     while (true) {
-        display();
-        break;
-        if (kb_get_last_scancode_press_state() == 0) {
-            keysUp(kb_get_last_scancode());
-        } else {
-            keysDown(kb_get_last_scancode());
+
+        tp2 = timer_get_current_ticks();
+        float elapsed_time = (float)(tp2 - tp1);
+        tp1 = tp2;
+
+        if (kb_is_scancode_pressed(0x1E /* A */)) {
+            plr_a -= (0.1) * elapsed_time;
+        }
+        if (kb_is_scancode_pressed(0x20 /* D */)) {
+            plr_a += (0.1) * elapsed_time;
+        }
+        if (kb_is_scancode_pressed(0x11 /* W */)) {
+            plr_x += math_sinf(plr_a) * 0.02 * elapsed_time;
+            plr_x += math_cosf(plr_a) * 0.02 * elapsed_time;
+        }
+        if (kb_is_scancode_pressed(0x1F /* S */)) {
+            plr_x -= math_sinf(plr_a) * 0.02 * elapsed_time;
+            plr_x -= math_cosf(plr_a) * 0.02 * elapsed_time;
+        }
+
+        for (int x = 0; x < GAME_SCR_WIDTH; x++) {
+            // Calculate the projected ray angle
+            float ray_a = (plr_a - plr_fov / 2.0) + ((float)x / (float)GAME_SCR_WIDTH) * plr_fov;
+
+            float ray_distance_to_wall = 0;
+            bool ray_hit_wall = false;
+
+            float plr_eye_x = math_sinf(ray_a);
+            float plr_eye_y = math_cosf(ray_a);
+
+            while (!ray_hit_wall && ray_distance_to_wall < plr_render_distance) {
+                ray_distance_to_wall += 0.1;
+
+                int ray_test_x = (int)(plr_x + plr_eye_x * ray_distance_to_wall);
+                int ray_test_y = (int)(plr_y + plr_eye_y * ray_distance_to_wall);
+
+                // Test if ray is out of bounds
+                if (ray_test_x < 0 || ray_test_x >= map_w || ray_test_y < 0 || ray_test_y >= map_h) {
+                    ray_hit_wall = true;
+                    ray_distance_to_wall = plr_render_distance;
+                } else {
+                    // Is the cell a wall?
+                    if (map[ray_test_y * map_w + ray_test_x] == '#') {
+                        ray_hit_wall = true;
+                    }
+                }
+            }
+
+            // Calculate distance to ceiling and floor
+            int map_ceiling = (float)(GAME_SCR_HEIGHT / 2.0) - GAME_SCR_HEIGHT / ((float)ray_distance_to_wall);
+            int map_floor = GAME_SCR_HEIGHT - map_ceiling;
+
+            uint8_t shade = 0x10;
+
+            if (ray_distance_to_wall <= plr_render_distance / 4) {shade = 0x1F;}
+            else if (ray_distance_to_wall <= plr_render_distance / 3) {shade = 0x1D;}
+            else if (ray_distance_to_wall <= plr_render_distance / 2) {shade = 0x1B;}
+            else if (ray_distance_to_wall <= plr_render_distance / 1) {shade = 0x19;}
+            else {shade = 0x10;}
+
+            for (int y = 0; y < GAME_SCR_HEIGHT; y++) {
+                if (y < map_ceiling) {
+                    m13_draw_pixel(y * GAME_SCR_WIDTH + x, 0x10);
+                } else if (y > map_ceiling && y <= map_floor) {
+                    m13_draw_pixel(y * GAME_SCR_WIDTH + x, shade);
+                } else {
+                    uint8_t floor_shade = 0x10;
+                    float brightness = 1.0 - (((float)y - GAME_SCR_HEIGHT / 2) / ((float)GAME_SCR_HEIGHT / 2));
+                    if (brightness <= 0.25) {floor_shade = 0x18;}
+                    else if (brightness <= 0.5) {floor_shade = 0x16;}
+                    else if (brightness <= 0.75) {floor_shade = 0x14;}
+                    else if (brightness <= 0.9) {floor_shade = 0x12;}
+                    else {floor_shade = 0x10;}
+                    m13_draw_pixel(y * GAME_SCR_WIDTH + x, floor_shade);
+                }
+            }
         }
     }
     return 0;

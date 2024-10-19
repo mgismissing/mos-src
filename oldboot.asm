@@ -145,9 +145,9 @@ extended_space_load:
     mov byte [var_currentSelection], 0x00
     call mos_show_logo
     call delay_1s
-    jmp pm_enter
+    jmp win_start
 
-;%include "window.asm"
+%include "window.asm"
 
 system_shutdown_screen:
     call power_shutdown

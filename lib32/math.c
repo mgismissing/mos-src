@@ -18,7 +18,7 @@ float math_fact(int n) {
     return n <= 0 ? 1 : n * math_fact(n-1);
 }
 
-float math_sin(int deg) {
+float math_sinf(int deg) {
     deg %= 360; // make it less than 360
     float rad = deg * PI / 180;
     float sin = 0;
@@ -30,7 +30,7 @@ float math_sin(int deg) {
     return sin;
 }
 
-float math_cos(int deg) {
+float math_cosf(int deg) {
     deg %= 360; // make it less than 360
     float rad = deg * PI / 180;
     float cos = 0;

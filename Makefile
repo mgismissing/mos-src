@@ -3,11 +3,13 @@ TOTAL_SECTORS=128
 GCC = cc/bin/i686-elf-gcc
 GCC_FLAGS = -fno-stack-protector -fno-builtin -m32 -g
 LD = cc/bin/i686-elf-ld
-LD_FLAGS = -Ttext 0x00010000 --oformat binary
+LD_FLAGS = -Ttext 0x0000A000 --oformat binary
 
 all: build
 
 build:
+	nasm -f bin boot.asm -o boot16.bin
+
 	nasm -f elf32 pm/main.asm -o obj/main.o
 	wsl $(GCC) $(GCC_FLAGS) -c pm/kernel.c -o obj/kernel.o
 	wsl $(GCC) $(GCC_FLAGS) -c pm/gerg/gerg.c -o obj/gerg/gerg.o
@@ -22,8 +24,6 @@ build:
 	wsl $(GCC) $(GCC_FLAGS) -c lib32/multitask.c -o obj/multitask.o
 	wsl $(GCC) $(GCC_FLAGS) -c lib32/timer.c -o obj/timer.o
 	wsl $(LD) $(LD_FLAGS) obj/main.o obj/kernel.o obj/string.o obj/interrupt.o obj/vga.o obj/timer.o obj/multitask.o obj/stdio.o obj/math.o obj/notepad/notepad.o obj/gerg/gerg.o obj/doom/doom.o obj/gd/gd.o -o kernel.bin
-
-	nasm -f bin boot.asm -o boot16.bin
 
 	wsl cat boot16.bin kernel.bin > boot.bin
 
